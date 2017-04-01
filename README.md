@@ -1,0 +1,2 @@
+# coinbot
+coin trading bot
