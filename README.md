@@ -1,6 +1,12 @@
 # coinbot
 coin trading assistant bot
 
+## todo
+
+- add flow typing
+- add eslint
+- json storage
+
 ## technology 
 
 - https://docs.gdax.com/
