@@ -10,7 +10,7 @@ coin trading assistant bot
 ## technology 
 
 - https://docs.gdax.com/
-- twilio, or slack bot or any other chat platform. ideally private, thus text.
+- https://core.telegram.org/bots/api
 
 ## algorithm ideas
 
