@@ -1,0 +1,29 @@
+{
+  "name": "coinbot",
+  "version": "0.0.1",
+  "description": "coinbase recommendation bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/awitherow/coinbot.git"
+  },
+  "keywords": [
+    "nodejs",
+    "gdax",
+    "bitcoin",
+    "ethereum",
+    "bot"
+  ],
+  "author": "Austin Witherow",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/awitherow/coinbot/issues"
+  },
+  "homepage": "https://github.com/awitherow/coinbot#readme",
+  "dependencies": {
+    "gdax": "coinbase/gdax-node"
+  }
+}
