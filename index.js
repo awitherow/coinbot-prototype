@@ -10,20 +10,25 @@ console.log('server started', moment().format('MMMM Do YYYY, h:mm:ss a'));
 
 activate();
 
+// activate is run on start
+// also upon completion, it will be run on a setInterval determined on the
+// decide() function that will be used later.
 async function activate() {
     const latestBTCValue = await getSnapshot();
-    console.log(latestBTCValue.price);
+    console.log(latestBTCValue);
     const btcAccount = await getAccount('BTC');
     const usdAccount = await getAccount('USD');
     console.log(btcAccount, usdAccount);
     const latestAction = await getAccountHistory(btcAccount.id);
-    console.log(latestAction);
-    // if (latestBTCValue < lastSale) run buy algorithm, else activate later
-    // if (latestBTCValue > lastPurchase) run sale algorithm, else activate later
-    // const data = analyze();
-    // decide();
+    console.log(latestAction); // will get lastPurchase/lastSale from here
+    // if user has btc, and (latestBTCValue > lastPurchase) run sale analyze, else activate later
+    // if user has USD (latestBTCValue < lastSale) run buy analyze, else activate later
+    // analyze(sale || buy, action && latest value).then(decide);
 }
 
+// getSnapshot returns a Promise that checks the products current status
+// this seems to be set to BTC automatically.
+// https://docs.gdax.com/#get-product-ticker
 function getSnapshot() {
     return new Promise((resolve, reject) =>
         client.getProductTicker((err, res, data) => {
@@ -35,6 +40,9 @@ function getSnapshot() {
         }));
 }
 
+// getAccount is passed a type of account, by string.
+// it then resolves the first account of the user
+// https://docs.gdax.com/#list-accounts
 function getAccount(type) {
     return new Promise((resolve, reject) =>
         authClient.getAccounts((err, res, data) => {
@@ -45,6 +53,8 @@ function getAccount(type) {
         }));
 }
 
+// getAccountHistory returns the latest 10 account events.
+// https://docs.gdax.com/#get-account-history
 function getAccountHistory(id) {
     return new Promise((resolve, reject) =>
         authClient.getAccountHistory(id, (err, res, data) => {
@@ -53,11 +63,6 @@ function getAccountHistory(id) {
             }
             resolve(data);
         }));
-}
-
-function getLastSaleByUser() {
-    // do I want to do this on every activate?
-    // or do websocket event?
 }
 
 function analyze() {
