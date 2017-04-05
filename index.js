@@ -4,8 +4,11 @@ const client = new gdax.PublicClient();
 
 console.log('server started', moment().format('MMMM Do YYYY, h:mm:ss a'));
 
-function getRecentActivity() {
-    const latestBTCValue = getSnapshot();
+getRecentActivity();
+
+async function getRecentActivity() {
+    const latestBTCValue = await getSnapshot();
+    console.log(latestBTCValue);
     // const lastPurchase = getLastPurchaseByUser();
     // const lastSale = getLastSaleByUser();
     // if (latestBTCValue < lastSale) run buy algorithm, else getRecentActivity later
@@ -15,14 +18,14 @@ function getRecentActivity() {
 }
 
 function getSnapshot() {
-    client.getProductTicker(function(err, res, data) {
-        if (err) {
-            console.error(err);
-        } else {
-            console.log(data);
-            return data;
-        }
-    });
+    return new Promise((resolve, reject) =>
+        client.getProductTicker(function(err, res, data) {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(data);
+            }
+        }));
 }
 
 function getLastPurchaseByUser() {
