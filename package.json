@@ -28,7 +28,8 @@
   },
   "homepage": "https://github.com/awitherow/coinbot#readme",
   "dependencies": {
-    "gdax": "coinbase/gdax-node"
+    "gdax": "coinbase/gdax-node",
+    "moment": "^2.18.1"
   },
   "devDependencies": {
     "nodemon": "^1.11.0"

@@ -1,7 +1,8 @@
 const gdax = require('gdax');
+const moment = require('moment');
 const client = new gdax.PublicClient();
 
-console.log('server started @', Date.now());
+console.log('server started', moment().format('MMMM Do YYYY, h:mm:ss a'));
 
 function getRecentActivity() {
     const latestBTCValue = getSnapshot();
