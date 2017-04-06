@@ -1,29 +1,84 @@
+// gdax related
 const gdax = require('gdax');
-const moment = require('moment');
 const client = new gdax.PublicClient();
 
+// project related
+const moment = require('moment');
 require('dotenv').config();
 const { KEY, SECRET, PASS, ENDPOINT } = process.env;
+
+// console log helpers
+const logIt = require('./src/helpers/logger.js');
+
+// intialize authorized client.
 const authClient = new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT);
-
-console.log('server started', moment().format('MMMM Do YYYY, h:mm:ss a'));
-
+logIt({
+    title: 'server started',
+    info: moment().format('MMMM Do YYYY, h:mm:ss a')
+});
 activate();
 
 // activate is run on start
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
 async function activate() {
-    const latestBTCValue = await getSnapshot();
-    console.log(latestBTCValue);
-    const btcAccount = await getAccount('BTC');
-    const usdAccount = await getAccount('USD');
-    console.log(btcAccount, usdAccount);
-    const latestAction = await getAccountHistory(btcAccount.id);
-    console.log(latestAction); // will get lastPurchase/lastSale from here
-    // if user has btc, and (latestBTCValue > lastPurchase) run sale analyze, else activate later
-    // if user has USD (latestBTCValue < lastSale) run buy analyze, else activate later
-    // analyze(sale || buy, action && latest value).then(decide);
+    const marketBTC = await getSnapshot();
+    const myBTC = await getAccount('BTC');
+    const myUSD = await getAccount('USD');
+    const lastAction = await getAccountHistory(myBTC.id);
+
+    if (parseFloat(myBTC.balance)) {
+        logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
+    }
+
+    if (parseFloat(myUSD.balance)) {
+        logIt({
+            title: 'usd balance',
+            info: parseFloat(myUSD.balance)
+        });
+
+        const lastBTCPurchase = lastAction.filter(
+            a => a.details.product_id === 'BTC-USD'
+        )[0];
+
+        // ensure last trade was bitcoin.
+        if (lastBTCPurchase) {
+            const btcPurchasePrice = myUSD.balance /
+                Math.abs(parseFloat(lastBTCPurchase.amount));
+            const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
+
+            if (diffSinceLastTrade > 25) {
+                logIt({
+                    type: 'error',
+                    title: 'whoops, bought early. has risen',
+                    info: diffSinceLastTrade
+                });
+                // send text
+                setInterval(activate, 7200000); // 2 hours
+            } else if (diffSinceLastTrade < -50) {
+                logIt({
+                    title: 'time to buy! different is significant',
+                    info: diffSinceLastTrade
+                });
+                // send text
+                setInterval(activate, 1800000); // 30 minutes
+            } else {
+                logIt({
+                    title: 'difference',
+                    info: diffSinceLastTrade
+                });
+                // send text
+                setInterval(activate, 14400000); // 4 hours
+                logIt({
+                    title: 'checking again at',
+                    info: moment().add(4, 'hours')
+                });
+            }
+        }
+    }
+
+    // if user has USD (marketBTC < lastSale) run buy analyze, else activate later
+    // analyze(sale || buy, action && latest value).then(decide && theory);
 }
 
 // getSnapshot returns a Promise that checks the products current status
@@ -61,30 +116,6 @@ function getAccountHistory(id) {
             if (err) {
                 reject(err);
             }
-            resolve(data);
+            resolve(data.filter(trade => trade.type === 'match'));
         }));
-}
-
-function analyze() {
-    return {
-        // get last 8 snapshots from json storage
-        // analyze the trend {(ascend, descend), (velocity)}
-    };
-}
-
-function decide() {
-    // based on the velocity and trend direction,
-    // either activate again on different intervals,
-    // or recommendActionToUser() && handleMoneyTheoretically();
-}
-
-function recommendActionToUser() {
-    // connect to messaging service
-    // send direct message
-}
-
-function handleMoneyTheoretically() {
-    // do fake buy or sell based on recommendation
-    // store values
-    // analyze theoretical actions
 }
