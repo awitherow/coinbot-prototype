@@ -1,7 +1,4 @@
-const gdax = require('gdax');
-require('dotenv').config();
-const { KEY, SECRET, PASS, ENDPOINT } = process.env;
-const client = new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT);
+const client = require('../client');
 
 // getAccount is passed a type of account, by string.
 // it then resolves the first account of the user

@@ -1,7 +1,4 @@
-const gdax = require('gdax');
-require('dotenv').config();
-const { KEY, SECRET, PASS, ENDPOINT } = process.env;
-const client = new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT);
+const client = require('../client');
 
 // getSnapshot returns a Promise that checks the products current status
 // this seems to be set to BTC automatically.
