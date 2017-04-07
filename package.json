@@ -4,8 +4,9 @@
   "description": "coinbase recommendation bot",
   "main": "src/index.js",
   "scripts": {
-    "test": "jest",
-    "dev": "nodemon index.js"
+    "run": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
+    "test": "jest"
   },
   "jest": {
     "testEnvironment": "node"

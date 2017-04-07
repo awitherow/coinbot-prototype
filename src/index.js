@@ -1,27 +1,36 @@
-// gdax related
-const gdax = require('gdax');
-const client = new gdax.PublicClient();
-
-// project related
+// helpers
 const moment = require('moment');
-require('dotenv').config();
-const { KEY, SECRET, PASS, ENDPOINT } = process.env;
+const logIt = require('./helpers/logger.js');
 
-// console log helpers
-const logIt = require('./src/helpers/logger.js');
+// account related functions
+const {
+    getAccount,
+    getAccountHistory
+} = require('./core/account');
 
-// intialize authorized client.
-const authClient = new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT);
-logIt({
-    title: 'server started',
-    info: moment().format('MMMM Do YYYY, h:mm:ss a')
-});
-activate();
+// product related functions
+const {
+    getSnapshot
+} = require('./core/product');
 
-// activate is run on start
+function reactivate(time) {
+    setInterval(run, time);
+    logIt({
+        title: 'checking again at',
+        info: moment().add(time, 'milliseconds')
+    });
+}
+
+run();
+
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
-async function activate() {
+async function run() {
+    logIt({
+        title: 'server started',
+        info: moment().format('MMMM Do YYYY, h:mm:ss a')
+    });
+
     const marketBTC = await getSnapshot();
     const myBTC = await getAccount('BTC');
     const myUSD = await getAccount('USD');
@@ -54,21 +63,21 @@ async function activate() {
                     info: diffSinceLastTrade
                 });
                 // send text
-                setInterval(activate, 7200000); // 2 hours
+                reactivate(7200000);
             } else if (diffSinceLastTrade < -50) {
                 logIt({
                     title: 'time to buy! different is significant',
                     info: diffSinceLastTrade
                 });
                 // send text
-                setInterval(activate, 1800000); // 30 minutes
+                reactivate(1800000);
             } else {
                 logIt({
                     title: 'difference',
                     info: diffSinceLastTrade
                 });
                 // send text
-                setInterval(activate, 14400000); // 4 hours
+                reactivate(14400000);
                 logIt({
                     title: 'checking again at',
                     info: moment().add(4, 'hours')
@@ -76,46 +85,7 @@ async function activate() {
             }
         }
     }
-
+    // TODO:
     // if user has USD (marketBTC < lastSale) run buy analyze, else activate later
     // analyze(sale || buy, action && latest value).then(decide && theory);
-}
-
-// getSnapshot returns a Promise that checks the products current status
-// this seems to be set to BTC automatically.
-// https://docs.gdax.com/#get-product-ticker
-function getSnapshot() {
-    return new Promise((resolve, reject) =>
-        client.getProductTicker((err, res, data) => {
-            if (err) {
-                reject(err);
-            } else {
-                resolve(data);
-            }
-        }));
-}
-
-// getAccount is passed a type of account, by string.
-// it then resolves the first account of the user
-// https://docs.gdax.com/#list-accounts
-function getAccount(type) {
-    return new Promise((resolve, reject) =>
-        authClient.getAccounts((err, res, data) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(data.filter(acct => acct.currency === type)[0]);
-        }));
-}
-
-// getAccountHistory returns the latest 10 account events.
-// https://docs.gdax.com/#get-account-history
-function getAccountHistory(id) {
-    return new Promise((resolve, reject) =>
-        authClient.getAccountHistory(id, (err, res, data) => {
-            if (err) {
-                reject(err);
-            }
-            resolve(data.filter(trade => trade.type === 'match'));
-        }));
 }
