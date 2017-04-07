@@ -1,8 +1,16 @@
+// @flow
+
 const log = console.log;
 const chalk = require('chalk');
 
-module.exports = ({ type, title, info }) =>
-    type === 'error' ? logError({ title, info }) : logNormal({ title, info });
+type Log = {
+    form?: 'error' | 'log',
+    title: string,
+    info: any
+};
+
+module.exports = ({ form, title, info }: Log) =>
+    form === 'error' ? logError({ title, info }) : logNormal({ title, info });
 
 function logError({ title, info }) {
     log(chalk.bgYellow.black(`${title}: ${info}`));

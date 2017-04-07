@@ -1,3 +1,4 @@
+// @flow
 const client = require('../client');
 
 // getSnapshot returns a Promise that checks the products current status

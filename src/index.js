@@ -60,7 +60,7 @@ async function run() {
 
             if (diffSinceLastTrade > 25) {
                 logIt({
-                    type: 'error',
+                    form: 'error',
                     title: 'whoops, bought early. has risen',
                     info: diffSinceLastTrade
                 });
