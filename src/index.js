@@ -1,3 +1,5 @@
+// @flow
+
 // helpers
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
@@ -78,10 +80,6 @@ async function run() {
                 });
                 // send text
                 reactivate(14400000);
-                logIt({
-                    title: 'checking again at',
-                    info: moment().add(4, 'hours')
-                });
             }
         }
     }
