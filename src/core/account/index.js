@@ -1,9 +1,10 @@
+// @flow
 const client = require('../client');
 
 // getAccount is passed a type of account, by string.
 // it then resolves the first account of the user
 // https://docs.gdax.com/#list-accounts
-function getAccount(type) {
+function getAccount(type: string) {
     return new Promise((resolve, reject) =>
         client.getAccounts((err, res, data) => {
             if (err) {
@@ -15,7 +16,7 @@ function getAccount(type) {
 
 // getAccountHistory returns the latest 10 account events.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id) {
+function getAccountHistory(id: string) {
     return new Promise((resolve, reject) =>
         client.getAccountHistory(id, (err, res, data) => {
             if (err) {
