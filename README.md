@@ -57,9 +57,11 @@ This will use nodemon to watch for changes and restart the server with each file
 
 ## todo
 
-- add flow type checking
-- add eslint
+- sell recommendations
+- mutli coin integration
+- how to handle times when sold out too low, bought too high?
 - json storage
+- telegram hookup
 
 ## technology 
 
