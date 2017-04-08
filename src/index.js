@@ -7,7 +7,7 @@ const logIt = require('./helpers/logger.js');
 // account related functions
 const {
     getAccount,
-    getAccountHistory
+    getMatches
 } = require('./core/account');
 
 // product related functions
@@ -18,8 +18,8 @@ const {
 function reactivate(time) {
     setInterval(run, time);
     logIt({
-        title: 'checking again at',
-        info: moment().add(time, 'milliseconds')
+        title: 'checking again',
+        info: moment().add(time, 'milliseconds').fromNow()
     });
 }
 
@@ -36,54 +36,90 @@ async function run() {
     const marketBTC = await getSnapshot();
     const myBTC = await getAccount('BTC');
     const myUSD = await getAccount('USD');
-    const lastAction = await getAccountHistory(myBTC.id);
 
+    // ensure that there is BTC to be traded
     if (parseFloat(myBTC.balance)) {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
-    }
 
-    if (parseFloat(myUSD.balance)) {
-        logIt({
-            title: 'usd balance',
-            info: parseFloat(myUSD.balance)
-        });
-
-        const lastBTCPurchase = lastAction.filter(
+        const lastUSDMovement = await getMatches(myUSD.id);
+        const lastUSDMatch = lastUSDMovement.filter(
             a => a.details.product_id === 'BTC-USD'
         )[0];
 
-        // ensure last trade was bitcoin.
-        if (lastBTCPurchase) {
-            const btcPurchasePrice = myUSD.balance /
-                Math.abs(parseFloat(lastBTCPurchase.amount));
-            const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
+        if (lastUSDMatch.amount < 0) {
+            const priceAtTimeOfSale = Math.abs(lastUSDMatch.amount) /
+                myBTC.balance;
+            const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
 
-            if (diffSinceLastTrade > 25) {
+            if (diffSinceLastTrade < -10) {
                 logIt({
                     form: 'error',
-                    title: 'whoops, bought early. has risen',
+                    title: 'whoops, bought bitcoin a bit early. has dropped further',
                     info: diffSinceLastTrade
                 });
                 // send text
-                reactivate(7200000);
-            } else if (diffSinceLastTrade < -50) {
+                reactivate(3600000);
+            } else if (diffSinceLastTrade > 20) {
                 logIt({
                     title: 'time to buy! different is significant',
                     info: diffSinceLastTrade
                 });
                 // send text
-                reactivate(1800000);
+                reactivate(900000);
             } else {
                 logIt({
                     title: 'difference',
                     info: diffSinceLastTrade
                 });
                 // send text
-                reactivate(14400000);
+                reactivate(1800000);
+            }
+        }
+    }
+
+    // ensure that there is USD to be traded.
+    if (parseFloat(myUSD.balance) > 1) {
+        logIt({
+            title: 'usd balance',
+            info: parseFloat(myUSD.balance)
+        });
+
+        const lastBTCMovement = await getMatches(myBTC.id);
+        const lastBTCMatch = lastBTCMovement.filter(
+            a => a.details.product_id === 'BTC-USD'
+        )[0];
+
+        if (lastBTCMatch.amount < 0) {
+            const btcPurchasePrice = myUSD.balance /
+                Math.abs(parseFloat(lastBTCMatch.amount));
+            const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
+
+            if (diffSinceLastTrade > 10) {
+                logIt({
+                    form: 'error',
+                    title: 'whoops, bought bitcoin early. has risen',
+                    info: diffSinceLastTrade
+                });
+                // send text
+                reactivate(3600000);
+            } else if (diffSinceLastTrade < -20) {
+                logIt({
+                    title: 'time to buy! different is significant',
+                    info: diffSinceLastTrade
+                });
+                // send text
+                reactivate(900000);
+            } else {
+                logIt({
+                    title: 'difference',
+                    info: diffSinceLastTrade
+                });
+                // send text
+                reactivate(1800000);
             }
         }
     }
     // TODO:
-    // if user has USD (marketBTC < lastSale) run buy analyze, else activate later
+    // if user has USD (marketBTC < lastMatch) run buy analyze, else activate later
     // analyze(sale || buy, action && latest value).then(decide && theory);
 }

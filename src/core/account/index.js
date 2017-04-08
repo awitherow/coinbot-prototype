@@ -14,9 +14,9 @@ function getAccount(type: string) {
         }));
 }
 
-// getAccountHistory returns the latest 10 account events.
+// getMatches returns the latest 10 account events.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id: string) {
+function getMatches(id: string) {
     return new Promise((resolve, reject) =>
         client.getAccountHistory(id, (err, res, data) => {
             if (err) {
@@ -28,5 +28,5 @@ function getAccountHistory(id: string) {
 
 module.exports = {
     getAccount,
-    getAccountHistory
+    getMatches
 };
