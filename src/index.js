@@ -3,6 +3,7 @@
 // helpers
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
+const notifyUserViaText = require('./notifier/');
 
 // account related functions
 const {
@@ -52,26 +53,22 @@ async function run() {
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
 
             if (diffSinceLastTrade < -10) {
-                logIt({
-                    form: 'error',
-                    title: 'whoops, bought bitcoin a bit early. has dropped further',
-                    info: diffSinceLastTrade
-                });
-                // send text
+                const notification = 'whoops, you bought bitcoin a bit early. has dropped further by ' +
+                    diffSinceLastTrade +
+                    '.';
+                notifyUserViaText(notification);
                 reactivate(3600000);
             } else if (diffSinceLastTrade > 20) {
-                logIt({
-                    title: 'time to buy! different is significant',
-                    info: diffSinceLastTrade
-                });
-                // send text
+                const notification = 'time to buy! difference of' +
+                    diffSinceLastTrade +
+                    'is significant';
+                notifyUserViaText(notification);
                 reactivate(900000);
             } else {
                 logIt({
                     title: 'difference',
                     info: diffSinceLastTrade
                 });
-                // send text
                 reactivate(1800000);
             }
         }
@@ -95,19 +92,16 @@ async function run() {
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
-                logIt({
-                    form: 'error',
-                    title: 'whoops, bought bitcoin early. has risen',
-                    info: diffSinceLastTrade
-                });
-                // send text
+                const notification = 'whoops, you sold bitcoin a bit early. has increased further by ' +
+                    diffSinceLastTrade +
+                    '.';
+                notifyUserViaText(notification);
                 reactivate(3600000);
             } else if (diffSinceLastTrade < -20) {
-                logIt({
-                    title: 'time to buy! different is significant',
-                    info: diffSinceLastTrade
-                });
-                // send text
+                const notification = 'time to sell! difference of' +
+                    diffSinceLastTrade +
+                    'is significant';
+                notifyUserViaText(notification);
                 reactivate(900000);
             } else {
                 logIt({
