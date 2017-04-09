@@ -54,7 +54,7 @@ async function run() {
             if (diffSinceLastTrade < -10) {
                 logIt({
                     form: 'error',
-                    title: 'whoops, bought bitcoin a bit early. has dropped further',
+                    title: 'Keep on the look out for potential further investment, Price drop',
                     info: diffSinceLastTrade
                 });
                 // send text
@@ -97,7 +97,7 @@ async function run() {
             if (diffSinceLastTrade > 10) {
                 logIt({
                     form: 'error',
-                    title: 'whoops, bought bitcoin early. has risen',
+                    title: 'You bought bitcoin early. Has risen',
                     info: diffSinceLastTrade
                 });
                 // send text
