@@ -3,7 +3,10 @@
 // helpers
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
-const notifyUserViaText = require('./notifier/');
+const {
+    twilioActivated,
+    notifyUserViaText
+} = require('./notifier/');
 
 // account related functions
 const {
@@ -30,7 +33,7 @@ run();
 // decide() function that will be used later.
 async function run() {
     logIt({
-        title: 'server started',
+        title: 'starting run task at',
         info: moment().format('MMMM Do YYYY, h:mm:ss a')
     });
 
@@ -51,30 +54,20 @@ async function run() {
             const priceAtTimeOfSale = Math.abs(lastUSDMatch.amount) /
                 myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
+            let reactivationTime = 1800000;
 
             if (diffSinceLastTrade < -10) {
-                const notification = 'whoops, you bought bitcoin a bit early. has dropped further by ' +
-                    diffSinceLastTrade +
-                    '.';
-                notifyUserViaText(notification);
-                reactivate(3600000);
+                reactivationTime = 3600000;
             } else if (diffSinceLastTrade > 50) {
-                logIt({
-                    title: 'time to buy! different is significant',
-                    info: diffSinceLastTrade
-                });
-                const notification = 'time to buy! difference of' +
-                    diffSinceLastTrade +
-                    'is significant';
-                notifyUserViaText(notification);
-                reactivate(900000);
-            } else {
-                logIt({
-                    title: 'difference',
-                    info: diffSinceLastTrade
-                });
-                reactivate(1800000);
+                if (twilioActivated) {
+                    const notification = 'time to buy! difference of' +
+                        diffSinceLastTrade +
+                        'is significant';
+                    notifyUserViaText(notification);
+                }
+                reactivationTime = 900000;
             }
+            reactivate(reactivationTime);
         }
     }
 
@@ -94,31 +87,20 @@ async function run() {
             const btcPurchasePrice = myUSD.balance /
                 Math.abs(parseFloat(lastBTCMatch.amount));
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
+            let reactivationTime = 1800000;
 
             if (diffSinceLastTrade > 10) {
-                const notification = 'whoops, you sold bitcoin a bit early. has increased further by ' +
-                    diffSinceLastTrade +
-                    '.';
-                notifyUserViaText(notification);
-                reactivate(3600000);
+                reactivationTime = 3600000;
             } else if (diffSinceLastTrade < -50) {
-                logIt({
-                    title: 'time to buy! different is significant',
-                    info: diffSinceLastTrade
-                })
-                const notification = 'time to sell! difference of' +
-                    diffSinceLastTrade +
-                    'is significant';
-                notifyUserViaText(notification);
-                reactivate(900000);
-            } else {
-                logIt({
-                    title: 'difference',
-                    info: diffSinceLastTrade
-                });
-                // send text
-                reactivate(1800000);
+                if (twilioActivated) {
+                    const notification = 'time to sell! difference of' +
+                        diffSinceLastTrade +
+                        'is significant';
+                    notifyUserViaText(notification);
+                }
+                reactivationTime = 900000;
             }
+            reactivate(reactivationTime);
         }
     }
     // TODO:
