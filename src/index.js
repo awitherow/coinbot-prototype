@@ -58,7 +58,11 @@ async function run() {
                     '.';
                 notifyUserViaText(notification);
                 reactivate(3600000);
-            } else if (diffSinceLastTrade > 20) {
+            } else if (diffSinceLastTrade > 50) {
+                logIt({
+                    title: 'time to buy! different is significant',
+                    info: diffSinceLastTrade
+                });
                 const notification = 'time to buy! difference of' +
                     diffSinceLastTrade +
                     'is significant';
@@ -97,7 +101,11 @@ async function run() {
                     '.';
                 notifyUserViaText(notification);
                 reactivate(3600000);
-            } else if (diffSinceLastTrade < -20) {
+            } else if (diffSinceLastTrade < -50) {
+                logIt({
+                    title: 'time to buy! different is significant',
+                    info: diffSinceLastTrade
+                })
                 const notification = 'time to sell! difference of' +
                     diffSinceLastTrade +
                     'is significant';
