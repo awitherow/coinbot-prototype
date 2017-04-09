@@ -59,7 +59,7 @@ async function run() {
                 });
                 // send text
                 reactivate(3600000);
-            } else if (diffSinceLastTrade > 20) {
+            } else if (diffSinceLastTrade > 50) {
                 logIt({
                     title: 'time to buy! different is significant',
                     info: diffSinceLastTrade
@@ -102,7 +102,7 @@ async function run() {
                 });
                 // send text
                 reactivate(3600000);
-            } else if (diffSinceLastTrade < -20) {
+            } else if (diffSinceLastTrade < -50) {
                 logIt({
                     title: 'time to buy! different is significant',
                     info: diffSinceLastTrade
