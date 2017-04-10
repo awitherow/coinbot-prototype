@@ -4,6 +4,11 @@
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
 const {
+    FIFTEEN_MINS_MS,
+    THIRTY_MINS_MS,
+    ONE_HOUR_MS
+} = require('./helpers/constants.js');
+const {
     twilioActivated,
     notifyUserViaText
 } = require('./notifier/');
@@ -54,10 +59,10 @@ async function run() {
             const priceAtTimeOfSale = Math.abs(lastUSDMatch.amount) /
                 myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
-            let reactivationTime = 1800000;
+            let reactivationTime = THIRTY_MINS_MS;
 
             if (diffSinceLastTrade < -10) {
-                reactivationTime = 3600000;
+                reactivationTime = ONE_HOUR_MS;
                 logIt({
                     form: 'error',
                     title: 'Keep on the look out for potential further investment, Price drop',
@@ -70,7 +75,7 @@ async function run() {
                         'is significant';
                     notifyUserViaText(notification);
                 }
-                reactivationTime = 900000;
+                reactivationTime = FIFTEEN_MINS_MS;
             }
             logIt({
                 title: 'Price change not significant',
@@ -96,10 +101,10 @@ async function run() {
             const btcPurchasePrice = myUSD.balance /
                 Math.abs(parseFloat(lastBTCMatch.amount));
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
-            let reactivationTime = 1800000;
+            let reactivationTime = THIRTY_MINS_MS;
 
             if (diffSinceLastTrade > 10) {
-                reactivationTime = 3600000;
+                reactivationTime = ONE_HOUR_MS;
                 logIt({
                     form: 'error',
                     title: 'You bought bitcoin early. Has risen',
@@ -112,7 +117,7 @@ async function run() {
                         'is significant';
                     notifyUserViaText(notification);
                 }
-                reactivationTime = 900000;
+                reactivationTime = FIFTEEN_MINS_MS;
             }
             logIt({
                 title: 'Price change not significant',
