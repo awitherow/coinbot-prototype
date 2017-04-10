@@ -58,6 +58,11 @@ async function run() {
 
             if (diffSinceLastTrade < -10) {
                 reactivationTime = 3600000;
+                logIt({
+                    form: 'error',
+                    title: 'Keep on the look out for potential further investment, Price drop',
+                    info: diffSinceLastTrade
+                });
             } else if (diffSinceLastTrade > 50) {
                 if (twilioActivated) {
                     const notification = 'time to buy! difference of' +
@@ -91,6 +96,11 @@ async function run() {
 
             if (diffSinceLastTrade > 10) {
                 reactivationTime = 3600000;
+                logIt({
+                    form: 'error',
+                    title: 'You bought bitcoin early. Has risen',
+                    info: diffSinceLastTrade
+                });
             } else if (diffSinceLastTrade < -50) {
                 if (twilioActivated) {
                     const notification = 'time to sell! difference of' +
