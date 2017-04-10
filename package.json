@@ -17,7 +17,8 @@
     "flow": "^0.2.3",
     "gdax": "coinbase/gdax-node",
     "global": "^4.3.1",
-    "moment": "^2.18.1"
+    "moment": "^2.18.1",
+    "twilio": "^2.11.1"
   },
   "devDependencies": {
     "flow-bin": "^0.43.1",
