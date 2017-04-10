@@ -41,8 +41,8 @@ async function run() {
     const myBTC = await getAccount('BTC');
     const myUSD = await getAccount('USD');
 
-    // ensure that there is BTC to be traded
-    if (parseFloat(myBTC.balance)) {
+    // btc -> usd
+    if (Number(parseFloat(myBTC.balance)).toFixed(2) > 0) {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
 
         const lastUSDMovement = await getMatches(myUSD.id);
@@ -63,7 +63,7 @@ async function run() {
                     title: 'Keep on the look out for potential further investment, Price drop',
                     info: diffSinceLastTrade
                 });
-            } else if (diffSinceLastTrade > 50) {
+            } else if (diffSinceLastTrade > 25) {
                 if (twilioActivated) {
                     const notification = 'time to buy! difference of' +
                         diffSinceLastTrade +
@@ -72,11 +72,15 @@ async function run() {
                 }
                 reactivationTime = 900000;
             }
+            logIt({
+                title: 'Price change not significant',
+                info: diffSinceLastTrade
+            });
             reactivate(reactivationTime);
         }
     }
 
-    // ensure that there is USD to be traded.
+    // usd -> btc
     if (parseFloat(myUSD.balance) > 1) {
         logIt({
             title: 'usd balance',
@@ -101,7 +105,7 @@ async function run() {
                     title: 'You bought bitcoin early. Has risen',
                     info: diffSinceLastTrade
                 });
-            } else if (diffSinceLastTrade < -50) {
+            } else if (diffSinceLastTrade < -25) {
                 if (twilioActivated) {
                     const notification = 'time to sell! difference of' +
                         diffSinceLastTrade +
@@ -110,10 +114,11 @@ async function run() {
                 }
                 reactivationTime = 900000;
             }
+            logIt({
+                title: 'Price change not significant',
+                info: diffSinceLastTrade
+            });
             reactivate(reactivationTime);
         }
     }
-    // TODO:
-    // if user has USD (marketBTC < lastMatch) run buy analyze, else activate later
-    // analyze(sale || buy, action && latest value).then(decide && theory);
 }
