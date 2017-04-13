@@ -9,6 +9,8 @@ function getSnapshot() {
         client.getProductTicker((err, res, data) => {
             if (err) {
                 reject(err);
+            } else if (data.message) {
+                reject(data.message);
             } else {
                 resolve(data);
             }

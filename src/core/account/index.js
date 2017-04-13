@@ -10,6 +10,9 @@ function getAccount(type: string) {
             if (err) {
                 reject(err);
             }
+            if (data.message) {
+                reject(data.message);
+            }
             resolve(data.filter(acct => acct.currency === type)[0]);
         }));
 }
@@ -21,6 +24,9 @@ function getMatches(id: string) {
         client.getAccountHistory(id, (err, res, data) => {
             if (err) {
                 reject(err);
+            }
+            if (data.message) {
+                reject(data.message);
             }
             resolve(data.filter(trade => trade.type === 'match'));
         }));
