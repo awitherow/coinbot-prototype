@@ -4,6 +4,7 @@
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
 const {
+    FIVE_MINS_MS,
     FIFTEEN_MINS_MS,
     THIRTY_MINS_MS,
     ONE_HOUR_MS,
@@ -57,9 +58,14 @@ async function run() {
                     title: 'Keep on the look out for potential further investment, Price drop',
                     info: diffSinceLastTrade,
                 });
-            }
-
-            if (diffSinceLastTrade > 25) {
+            } else if (diffSinceLastTrade > 10) {
+                reactivate(FIFTEEN_MINS_MS);
+                logIt({
+                    form: 'notice',
+                    title: 'BTC price rising, checking more frequently',
+                    info: diffSinceLastTrade,
+                });
+            } else if (diffSinceLastTrade > 20) {
                 if (twilioActivated) {
                     notifyUserViaText(
                         `SELL BTC! Significant difference: ${diffSinceLastTrade}.`
@@ -70,14 +76,14 @@ async function run() {
                         info: diffSinceLastTrade,
                     });
                 }
-                reactivate(FIFTEEN_MINS_MS);
+                reactivate(FIVE_MINS_MS);
+            } else {
+                logIt({
+                    title: 'Price change not significant',
+                    info: diffSinceLastTrade,
+                });
+                reactivate(THIRTY_MINS_MS);
             }
-
-            logIt({
-                title: 'Price change not significant',
-                info: diffSinceLastTrade,
-            });
-            reactivate(THIRTY_MINS_MS);
         }
     }
 
@@ -100,9 +106,14 @@ async function run() {
                     title: 'You bought bitcoin early. Has risen',
                     info: diffSinceLastTrade,
                 });
-            }
-
-            if (diffSinceLastTrade < -25) {
+            } else if (diffSinceLastTrade < -10) {
+                reactivate(FIFTEEN_MINS_MS);
+                logIt({
+                    form: 'notice',
+                    title: 'BTC is rising, checking more often now.',
+                    info: diffSinceLastTrade,
+                });
+            } else if (diffSinceLastTrade < -20) {
                 if (twilioActivated) {
                     notifyUserViaText(
                         `Buy BTC! Significant difference: ${diffSinceLastTrade}.`
@@ -113,14 +124,14 @@ async function run() {
                         info: diffSinceLastTrade,
                     });
                 }
-                reactivate(FIFTEEN_MINS_MS);
+                reactivate(FIVE_MINS_MS);
+            } else {
+                logIt({
+                    title: 'Price change not significant',
+                    info: diffSinceLastTrade,
+                });
+                reactivate(THIRTY_MINS_MS);
             }
-
-            logIt({
-                title: 'Price change not significant',
-                info: diffSinceLastTrade,
-            });
-            reactivate(THIRTY_MINS_MS);
         }
     }
 }
