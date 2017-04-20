@@ -50,14 +50,6 @@ async function run() {
             const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
 
-            console.log({
-                priceAtTimeOfSale,
-                btcBal: myBTC.balance,
-                lastMatch: lastMatch,
-                marketBTC: marketBTC.price,
-            });
-            return;
-
             if (diffSinceLastTrade < -10) {
                 reactivate(ONE_HOUR_MS);
                 logIt({
