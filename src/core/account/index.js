@@ -14,7 +14,8 @@ function getAccount(type: string) {
                 reject(data.message);
             }
             resolve(data.filter(acct => acct.currency === type)[0]);
-        }));
+        })
+    );
 }
 
 // getMatches returns the latest 10 account events.
@@ -29,10 +30,11 @@ function getMatches(id: string) {
                 reject(data.message);
             }
             resolve(data.filter(trade => trade.type === 'match'));
-        }));
+        })
+    );
 }
 
 module.exports = {
     getAccount,
-    getMatches
+    getMatches,
 };

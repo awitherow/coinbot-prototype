@@ -6,29 +6,21 @@ const logIt = require('./helpers/logger.js');
 const {
     FIFTEEN_MINS_MS,
     THIRTY_MINS_MS,
-    ONE_HOUR_MS
+    ONE_HOUR_MS,
 } = require('./helpers/constants.js');
-const {
-    twilioActivated,
-    notifyUserViaText
-} = require('./notifier/');
+const { twilioActivated, notifyUserViaText } = require('./notifier/');
 
 // account related functions
-const {
-    getAccount,
-    getMatches
-} = require('./core/account');
+const { getAccount, getMatches } = require('./core/account');
 
 // product related functions
-const {
-    getSnapshot
-} = require('./core/product');
+const { getSnapshot } = require('./core/product');
 
 function reactivate(time) {
     setInterval(run, time);
     logIt({
         title: 'checking again',
-        info: moment().add(time, 'milliseconds').fromNow()
+        info: moment().add(time, 'milliseconds').fromNow(),
     });
 }
 
@@ -39,7 +31,7 @@ run();
 async function run() {
     logIt({
         title: 'running at',
-        info: moment().format('MMMM Do YYYY, h:mm:ss a')
+        info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
     const marketBTC = await getSnapshot();
@@ -54,8 +46,8 @@ async function run() {
         const lastMatch = await getlastMatch(myUSD.id);
 
         if (lastMatch.amount < 0) {
-            const priceAtTimeOfSale = Math.abs(lastMatch.amount) /
-                myBTC.balance;
+            const priceAtTimeOfSale =
+                Math.abs(lastMatch.amount) / myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
 
             if (diffSinceLastTrade < -10) {
@@ -63,7 +55,7 @@ async function run() {
                 logIt({
                     form: 'error',
                     title: 'Keep on the look out for potential further investment, Price drop',
-                    info: diffSinceLastTrade
+                    info: diffSinceLastTrade,
                 });
             }
 
@@ -75,7 +67,7 @@ async function run() {
                 } else {
                     logIt({
                         title: 'Price difference signficant, buy!',
-                        info: diffSinceLastTrade
+                        info: diffSinceLastTrade,
                     });
                 }
                 reactivate(FIFTEEN_MINS_MS);
@@ -83,7 +75,7 @@ async function run() {
 
             logIt({
                 title: 'Price change not significant',
-                info: diffSinceLastTrade
+                info: diffSinceLastTrade,
             });
             reactivate(THIRTY_MINS_MS);
         }
@@ -97,8 +89,8 @@ async function run() {
         const lastMatch = await getlastMatch(myBTC.id);
 
         if (lastMatch.amount < 0) {
-            const btcPurchasePrice = myUSD.balance /
-                Math.abs(parseFloat(lastMatch.amount));
+            const btcPurchasePrice =
+                myUSD.balance / Math.abs(parseFloat(lastMatch.amount));
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
@@ -106,7 +98,7 @@ async function run() {
                 logIt({
                     form: 'error',
                     title: 'You bought bitcoin early. Has risen',
-                    info: diffSinceLastTrade
+                    info: diffSinceLastTrade,
                 });
             }
 
@@ -118,7 +110,7 @@ async function run() {
                 } else {
                     logIt({
                         title: 'Price difference signficant, sell!',
-                        info: diffSinceLastTrade
+                        info: diffSinceLastTrade,
                     });
                 }
                 reactivate(FIFTEEN_MINS_MS);
@@ -126,7 +118,7 @@ async function run() {
 
             logIt({
                 title: 'Price change not significant',
-                info: diffSinceLastTrade
+                info: diffSinceLastTrade,
             });
             reactivate(THIRTY_MINS_MS);
         }

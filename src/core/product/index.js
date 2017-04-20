@@ -14,9 +14,10 @@ function getSnapshot() {
             } else {
                 resolve(data);
             }
-        }));
+        })
+    );
 }
 
 module.exports = {
-    getSnapshot
+    getSnapshot,
 };
