@@ -43,12 +43,20 @@ async function run() {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
         console.log('checking for bitcoin sales options');
 
-        const lastMatch = await getlastMatch(myUSD.id);
+        const lastMatch = await getLastOrder(myUSD.id);
+        console.log(lastMatch);
 
-        if (lastMatch.amount < 0) {
-            const priceAtTimeOfSale =
-                Math.abs(lastMatch.amount) / myBTC.balance;
+        if (lastMatch < 0) {
+            const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
+
+            console.log({
+                priceAtTimeOfSale,
+                btcBal: myBTC.balance,
+                lastMatch: lastMatch,
+                marketBTC: marketBTC.price,
+            });
+            return;
 
             if (diffSinceLastTrade < -10) {
                 reactivate(ONE_HOUR_MS);
@@ -86,11 +94,11 @@ async function run() {
         logIt({ title: 'USD Balance', info: parseFloat(myUSD.balance) });
         console.log('checking for bitcoin purchasing options');
 
-        const lastMatch = await getlastMatch(myBTC.id);
+        const lastMatch = await getLastOrder(myBTC.id);
 
-        if (lastMatch.amount < 0) {
+        if (lastMatch < 0) {
             const btcPurchasePrice =
-                myUSD.balance / Math.abs(parseFloat(lastMatch.amount));
+                myUSD.balance / Math.abs(parseFloat(lastMatch));
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
@@ -125,9 +133,14 @@ async function run() {
     }
 }
 
-// getLastMatch gets the last movement of bitcoin for the
-async function getlastMatch(id) {
-    return (await getMatches(id)).filter(
+// getLastOrder gets the last movement of bitcoin for the
+async function getLastOrder(id) {
+    const bitCoinMatches = (await getMatches(id)).filter(
         a => a.details.product_id === 'BTC-USD'
-    )[0];
+    );
+    const lastOrderId = bitCoinMatches[0].details.order_id;
+    return bitCoinMatches
+        .slice(0, 10)
+        .filter(m => m.details.order_id === lastOrderId)
+        .reduce((acc, m) => acc + m.amount, 0);
 }
