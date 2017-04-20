@@ -11,7 +11,7 @@ const {
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
 
 // account related functions
-const { getAccount, getMatches } = require('./core/account');
+const { getAccount, getLastOrder } = require('./core/account');
 
 // product related functions
 const { getSnapshot } = require('./core/product');
@@ -43,11 +43,11 @@ async function run() {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
         console.log('checking for bitcoin sales options');
 
-        const lastMatch = await getlastMatch(myUSD.id);
+        const lastMatch = await getLastOrder(myUSD.id);
+        console.log(lastMatch);
 
-        if (lastMatch.amount < 0) {
-            const priceAtTimeOfSale =
-                Math.abs(lastMatch.amount) / myBTC.balance;
+        if (lastMatch < 0) {
+            const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
 
             if (diffSinceLastTrade < -10) {
@@ -86,11 +86,11 @@ async function run() {
         logIt({ title: 'USD Balance', info: parseFloat(myUSD.balance) });
         console.log('checking for bitcoin purchasing options');
 
-        const lastMatch = await getlastMatch(myBTC.id);
+        const lastMatch = await getLastOrder(myBTC.id);
 
-        if (lastMatch.amount < 0) {
+        if (lastMatch < 0) {
             const btcPurchasePrice =
-                myUSD.balance / Math.abs(parseFloat(lastMatch.amount));
+                myUSD.balance / Math.abs(parseFloat(lastMatch));
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
@@ -123,11 +123,4 @@ async function run() {
             reactivate(THIRTY_MINS_MS);
         }
     }
-}
-
-// getLastMatch gets the last movement of bitcoin for the
-async function getlastMatch(id) {
-    return (await getMatches(id)).filter(
-        a => a.details.product_id === 'BTC-USD'
-    )[0];
 }
