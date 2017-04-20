@@ -11,7 +11,7 @@ const {
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
 
 // account related functions
-const { getAccount, getMatches } = require('./core/account');
+const { getAccount, getLastOrder } = require('./core/account');
 
 // product related functions
 const { getSnapshot } = require('./core/product');
@@ -131,16 +131,4 @@ async function run() {
             reactivate(THIRTY_MINS_MS);
         }
     }
-}
-
-// getLastOrder gets the last movement of bitcoin for the
-async function getLastOrder(id) {
-    const bitCoinMatches = (await getMatches(id)).filter(
-        a => a.details.product_id === 'BTC-USD'
-    );
-    const lastOrderId = bitCoinMatches[0].details.order_id;
-    return bitCoinMatches
-        .slice(0, 10)
-        .filter(m => m.details.order_id === lastOrderId)
-        .reduce((acc, m) => acc + m.amount, 0);
 }
