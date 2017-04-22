@@ -42,11 +42,12 @@ async function run() {
     // btc -> usd
     if (Number(parseFloat(myBTC.balance)).toFixed(2) > 0) {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
-        console.log('checking for bitcoin sales options');
+        console.log('bitcoin -> usd');
 
         const lastMatch = await getLastOrder(myUSD.id);
-        console.log(lastMatch);
-
+        // last match should be a deficit of the last transfer you made
+        // aka, btc -> usd trade area should have deficit of usd, as we
+        // last purchased btc with usd.
         if (lastMatch < 0) {
             const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
@@ -90,7 +91,7 @@ async function run() {
     // usd -> btc
     if (parseFloat(myUSD.balance) > 1) {
         logIt({ title: 'USD Balance', info: parseFloat(myUSD.balance) });
-        console.log('checking for bitcoin purchasing options');
+        console.log('usd -> bitcoin');
 
         const lastMatch = await getLastOrder(myBTC.id);
 
