@@ -17,23 +17,27 @@ const { getAccount, getLastOrder } = require('./core/account');
 const { getSnapshot } = require('./core/product');
 
 function reactivate(time) {
-    setInterval(run, time);
+    setInterval(attemptRun, time);
     logIt({
         title: 'checking again',
         info: moment().add(time, 'milliseconds').fromNow(),
     });
 }
 
-try {
-    run();
-} catch (e) {
-    logIt({
-        form: 'error',
-        title: 'failed to run',
-        info: e,
-    });
-    reactivate(FIFTEEN_MINS_MS);
+function attemptRun() {
+    try {
+        run();
+    } catch (e) {
+        logIt({
+            form: 'error',
+            title: 'failed to run',
+            info: e,
+        });
+        reactivate(FIFTEEN_MINS_MS);
+    }
 }
+
+attemptRun();
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
