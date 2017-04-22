@@ -9,7 +9,7 @@ const twilioActivated =
 function notifyUserViaText(notification) {
     return new Promise((resolve, reject) => {
         if (!twilioActivated) {
-            reject('You need to have twilio activated to get this far');
+            return reject('You need to have twilio activated to get this far');
         }
         client.sendMessage(
             {
@@ -19,13 +19,13 @@ function notifyUserViaText(notification) {
             },
             function(err, data) {
                 if (err) {
-                    reject(err);
+                    return reject(err);
                 } else {
-                    resolve(data);
+                    return resolve(data);
                 }
             }
         );
-    });
+    }).catch(e => console.warn(e));
 }
 
 module.exports = {

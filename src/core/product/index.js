@@ -8,14 +8,14 @@ function getSnapshot() {
     return new Promise((resolve, reject) =>
         client.getProductTicker((err, res, data) => {
             if (err) {
-                reject(err);
+                return reject(err);
             } else if (data.message) {
-                reject(data.message);
+                return reject(data.message);
             } else {
-                resolve(data);
+                return resolve(data);
             }
         })
-    );
+    ).catch(e => console.warn(e));
 }
 
 module.exports = {
