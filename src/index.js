@@ -10,7 +10,6 @@ const {
     ONE_HOUR_MS,
 } = require('./helpers/constants.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
-
 // account related functions
 const { getAccount, getLastOrder } = require('./core/account');
 
@@ -25,7 +24,16 @@ function reactivate(time) {
     });
 }
 
-run();
+try {
+    run();
+} catch (e) {
+    logIt({
+        form: 'error',
+        title: 'failed to run',
+        info: e,
+    });
+    reactivate(FIFTEEN_MINS_MS);
+}
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
