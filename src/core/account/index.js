@@ -9,20 +9,14 @@ function getAccount(type: string) {
     return new Promise((resolve, reject) =>
         client.getAccounts((err, res, data) => {
             if (err) {
-                reject(err);
+                return reject(err);
             }
             if (data.message) {
-                reject(data.message);
+                return reject(data.message);
             }
-            resolve(data.filter(acct => acct.currency === type)[0]);
+            return resolve(data.filter(acct => acct.currency === type)[0]);
         })
-    ).catch(e =>
-        logIt({
-            form: 'error',
-            title: 'error getting account',
-            info: e,
-        })
-    );
+    ).catch(e => console.warn(e));
 }
 
 type Matches = {
@@ -49,7 +43,7 @@ function getAccountHistory(id: string) {
             if (data.message) {
                 return reject(data.message);
             }
-            resolve(
+            return resolve(
                 // transfer is ignored as we do not want to track transfers
                 // from coinbase. they will simply appear as new budget
                 // to be used by the app. slicing 0-25 for later performance
@@ -57,13 +51,7 @@ function getAccountHistory(id: string) {
                 data.filter(trade => trade.type !== 'transfer').slice(0, 25)
             );
         })
-    ).catch(e =>
-        logIt({
-            form: 'error',
-            title: 'error getting account history',
-            info: e,
-        })
-    );
+    ).catch(e => console.warn(e));
 }
 
 // getLastOrder gets last order of the account used.
