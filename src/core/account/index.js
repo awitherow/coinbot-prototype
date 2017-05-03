@@ -1,5 +1,5 @@
 // @flow
-const client = require('../client');
+const { authClient } = require('../client');
 const logIt = require('../../helpers/logger');
 
 // getAccount is passed a type of account, by string.
@@ -7,7 +7,7 @@ const logIt = require('../../helpers/logger');
 // https://docs.gdax.com/#list-accounts
 function getAccount(type: string) {
     return new Promise((resolve, reject) =>
-        client.getAccounts((err, res, data) => {
+        authClient.getAccounts((err, res, data) => {
             if (err) {
                 return reject(err);
             }
@@ -36,7 +36,7 @@ type Matches = {
 // https://docs.gdax.com/#get-account-history
 function getAccountHistory(id: string) {
     return new Promise((resolve, reject) =>
-        client.getAccountHistory(id, (err, res, data: Array<Matches>) => {
+        authClient.getAccountHistory(id, (err, res, data: Array<Matches>) => {
             if (err) {
                 return reject(err);
             }
@@ -59,7 +59,7 @@ function getAccountHistory(id: string) {
 // all parts of that order and get the sum of all
 async function getLastOrder(id: string) {
     const bitCoinMatches = (await getAccountHistory(id)).filter(
-        a => a.details.product_id === 'BTC-USD'
+        a => a.details.product_id === 'LTC-USD'
     );
     const lastOrderId = bitCoinMatches[0].details.order_id;
     return bitCoinMatches

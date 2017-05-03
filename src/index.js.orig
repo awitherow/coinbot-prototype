@@ -25,7 +25,7 @@ function reactivate(time) {
 }
 
 function attemptRun() {
-    const currency = 'USD'; // BTC, EUR, GBP also accepted. ENV VAR PLS!
+    const currency = 'USD'; // BTC, EUR, GBP also accepted.
     const coins = ['BTC', 'ETH', 'LTC'];
     coins.map(coin => {
         try {
@@ -51,11 +51,24 @@ async function run(coin, currency) {
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
+<<<<<<< HEAD
+    const [marketBtc, myBTC, myUSD] = await Promise.all([
+        getSnapshot(),
+        getAccount('BTC'),
+        getAccount('USD'),
+=======
     const [marketCoin, myCoinBalance, myCurrencyBalance] = await Promise.all([
         getSnapshot(`${coin}-${currency}`),
         getAccount(coin),
         getAccount(currency),
+>>>>>>> feat(coinbot): add multi coin integration
     ]);
+
+    console.log({
+        marketCoin,
+        myCoinBalance,
+        myCurrencyBalance,
+    });
 
     // coin -> currency
     if (Number(parseFloat(myCoinBalance.balance)).toFixed(2) > 0) {
