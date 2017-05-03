@@ -25,7 +25,8 @@ function reactivate(time, coin) {
 }
 
 function attemptRun() {
-    const currency = 'USD'; // BTC, EUR, GBP also accepted. ENV VAR PLS!
+    require('dotenv').config();
+    const currency = process.env.CURRENCY;
     coins.map(coin => {
         try {
             run(coin, currency);
