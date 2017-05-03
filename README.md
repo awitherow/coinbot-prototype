@@ -24,13 +24,14 @@ yarn dev
 
 #### .env
 
-there are 4 required environment variables that are used in the application:
+there are 5 required environment variables that are used in the application:
 
 ```
 KEY
 SECRET
 PASS
 ENDPOINT
+CURRENCY
 ```
 
 These are used to connect to the authenticated client, to get account related stuff.
@@ -40,6 +41,8 @@ To get the key, secret, pass you will need to create a key via gdax > settings >
 We are only using view permissions for this app at the moment.
 
 You need to save these somewhere secure. If you lose them, you will need to generate new ones.
+`
+Currency can be of type `USD`, `EUR`, `GBP`, or `BTC`.
 
 When you have these, simply set the items in your .env, example:
 
@@ -48,6 +51,7 @@ KEY=3469038hae4ha0e9h3
 SECRET=aeprhajerh09ua34zahe
 PASS=ah049ja4ha0fh09a34jh
 ENDPOINT=https://api.gdax.com
+CURRENCY=USD
 ```
 
 #### optional
