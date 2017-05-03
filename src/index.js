@@ -47,9 +47,11 @@ async function run() {
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
-    const marketBTC = await getSnapshot();
-    const myBTC = await getAccount('BTC');
-    const myUSD = await getAccount('USD');
+    const [marketBtc, myBTC, myUSD] = await Promise.all([
+        getSnapshot(),
+        getAccount('BTC'),
+        getAccount('USD'),
+    ]);
 
     // btc -> usd
     if (Number(parseFloat(myBTC.balance)).toFixed(2) > 0) {
