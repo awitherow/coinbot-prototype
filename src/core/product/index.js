@@ -16,7 +16,7 @@ function getSnapshot(currency) {
                 return resolve(data);
             }
         });
-    }).catch(e => console.warn(e));
+    }).catch(e => new Error(e));
 }
 
 module.exports = {

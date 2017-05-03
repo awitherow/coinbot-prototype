@@ -16,7 +16,7 @@ function getAccount(type: string) {
             }
             return resolve(data.filter(acct => acct.currency === type)[0]);
         })
-    ).catch(e => console.warn(e));
+    ).catch(e => new Error(e));
 }
 
 type Matches = {
@@ -51,18 +51,18 @@ function getAccountHistory(id: string) {
                 data.filter(trade => trade.type !== 'transfer').slice(0, 25)
             );
         })
-    ).catch(e => console.warn(e));
+    ).catch(e => new Error(e));
 }
 
 // getLastOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
 async function getLastOrder(id: string) {
-    const bitCoinMatches = (await getAccountHistory(id)).filter(
+    const coinMatches = (await getAccountHistory(id)).filter(
         a => a.details.product_id === 'LTC-USD'
     );
-    const lastOrderId = bitCoinMatches[0].details.order_id;
-    return bitCoinMatches
+    const lastOrderId = coinMatches[0].details.order_id;
+    return coinMatches
         .filter(m => m.details.order_id === lastOrderId)
         .reduce((acc, m) => acc + parseFloat(m.amount), 0);
 }
