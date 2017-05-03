@@ -16,8 +16,8 @@ const { getAccount, getLastOrder } = require('./core/account');
 // product related functions
 const { getSnapshot } = require('./core/product');
 
-function reactivate(time) {
-    setInterval(attemptRun, time);
+function reactivate(time, coin) {
+    setInterval(attemptRun(coin), time);
     logIt({
         title: 'checking again',
         info: moment().add(time, 'milliseconds').fromNow(),
@@ -26,7 +26,6 @@ function reactivate(time) {
 
 function attemptRun() {
     const currency = 'USD'; // BTC, EUR, GBP also accepted. ENV VAR PLS!
-    const coins = ['BTC', 'ETH', 'LTC'];
     coins.map(coin => {
         try {
             run(coin, currency);
@@ -36,12 +35,13 @@ function attemptRun() {
                 title: `failed to run for ${coin}-${currency}`,
                 info: e,
             });
-            reactivate(FIFTEEN_MINS_MS);
+            reactivate(FIFTEEN_MINS_MS, coin);
         }
     });
 }
 
-attemptRun();
+const coins = ['BTC', 'ETH', 'LTC'];
+attemptRun(coins);
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
@@ -76,14 +76,14 @@ async function run(coin: string, currency: string) {
             const diffSinceLastTrade = marketCoin.price - priceAtTimeOfSale;
 
             if (diffSinceLastTrade < -10) {
-                reactivate(ONE_HOUR_MS);
+                reactivate(ONE_HOUR_MS, coin);
                 logIt({
                     form: 'error',
                     title: 'Keep on the look out for potential further investment, Price drop',
                     info: diffSinceLastTrade,
                 });
             } else if (diffSinceLastTrade > 10) {
-                reactivate(FIFTEEN_MINS_MS);
+                reactivate(FIFTEEN_MINS_MS, coin);
                 logIt({
                     form: 'notice',
                     title: '${coin} price rising, checking more frequently',
@@ -100,13 +100,13 @@ async function run(coin: string, currency: string) {
                         info: diffSinceLastTrade,
                     });
                 }
-                reactivate(FIVE_MINS_MS);
+                reactivate(FIVE_MINS_MS, coin);
             } else {
                 logIt({
                     title: 'Price change not significant',
                     info: diffSinceLastTrade,
                 });
-                reactivate(THIRTY_MINS_MS);
+                reactivate(THIRTY_MINS_MS, coin);
             }
         }
     }
@@ -124,14 +124,14 @@ async function run(coin: string, currency: string) {
             const diffSinceLastTrade = marketCoin.price - coinPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
-                reactivate(ONE_HOUR_MS);
+                reactivate(ONE_HOUR_MS, coin);
                 logIt({
                     form: 'error',
                     title: 'You bought bitcoin early. Has risen',
                     info: diffSinceLastTrade,
                 });
             } else if (diffSinceLastTrade < -10) {
-                reactivate(FIFTEEN_MINS_MS);
+                reactivate(FIFTEEN_MINS_MS, coin);
                 logIt({
                     form: 'notice',
                     title: `${coin} is rising, checking more often now.`,
@@ -148,13 +148,13 @@ async function run(coin: string, currency: string) {
                         info: diffSinceLastTrade,
                     });
                 }
-                reactivate(FIVE_MINS_MS);
+                reactivate(FIVE_MINS_MS, coin);
             } else {
                 logIt({
                     title: 'Price change not significant',
                     info: diffSinceLastTrade,
                 });
-                reactivate(THIRTY_MINS_MS);
+                reactivate(THIRTY_MINS_MS, coin);
             }
         }
     }
