@@ -45,7 +45,7 @@ attemptRun();
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
-async function run(coin, currency) {
+async function run(coin: string, currency: string) {
     logIt({
         title: 'running at',
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
@@ -57,18 +57,19 @@ async function run(coin, currency) {
         getAccount(currency),
     ]);
 
+    const lastMatch = await getLastOrder(myCurrencyBalance.id, {
+        coin,
+        currency,
+    });
+
     // coin -> currency
     if (Number(parseFloat(myCoinBalance.balance)).toFixed(2) > 0) {
         logIt({
             title: `${coin} balance`,
             info: parseFloat(myCoinBalance.balance),
         });
-        console.log(`${coin} -> ${currency}`);
 
-        const lastMatch = await getLastOrder(myCurrencyBalance.id);
-        // last match should be a deficit of the last transfer you made
-        // aka, currency coin trade area should have deficit of coin, as we
-        // last purchased currency with coin.
+        console.log(`${coin} -> ${currency}`);
         if (lastMatch < 0) {
             const priceAtTimeOfSale =
                 Math.abs(lastMatch) / myCoinBalance.balance;
@@ -115,10 +116,8 @@ async function run(coin, currency) {
             title: `${coin} Balance`,
             info: parseFloat(myCurrencyBalance.balance),
         });
+
         console.log(`${coin} -> ${currency}`);
-
-        const lastMatch = await getLastOrder(myCoinBalance.id);
-
         if (lastMatch < 0) {
             const coinPurchasePrice =
                 myCurrencyBalance.balance / Math.abs(parseFloat(lastMatch));

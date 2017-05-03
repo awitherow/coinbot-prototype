@@ -57,9 +57,12 @@ function getAccountHistory(id: string) {
 // getLastOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getLastOrder(id: string) {
+async function getLastOrder(
+    id: string,
+    { coin, currency }: { coin: string, currency: string }
+) {
     const coinMatches = (await getAccountHistory(id)).filter(
-        a => a.details.product_id === 'LTC-USD'
+        a => a.details.product_id === `${coin}-${currency}`
     );
     const lastOrderId = coinMatches[0].details.order_id;
     return coinMatches
