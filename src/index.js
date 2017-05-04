@@ -1,6 +1,4 @@
 // @flow
-
-// helpers
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
 const {
@@ -10,13 +8,23 @@ const {
     ONE_HOUR_MS,
 } = require('./helpers/constants.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
-// account related functions
 const { getAccount, getLastOrder } = require('./core/account');
-
-// product related functions
 const { getSnapshot } = require('./core/product');
 
-function reactivate(time: number, coin: string) {
+type Millisecond =
+    | FIVE_MINS_MS
+    | FIFTEEN_MINS_MS
+    | THIRTY_MINS_MS
+    | ONE_HOUR_MS;
+
+type Coin = 'BTC' | 'ETH' | 'LTC';
+type Currency = 'BTC' | 'GBP' | 'EUR' | 'USD';
+const ACCEPTED_CURRENCIES = ['BTC', 'GBP', 'EUR', 'USD'];
+
+// reactivate takes a Millisecond and a Coin, both typed above.
+// it sets the interval for that Millisecond passed, and attemptsRun with
+// the coin selected after that interval.
+function reactivate(time: Millisecond, coin: Coin) {
     setInterval(attemptRun([coin]), time);
     logIt({
         title: 'checking again',
@@ -24,19 +32,24 @@ function reactivate(time: number, coin: string) {
     });
 }
 
-function attemptRun(coins: Array<string>) {
+// attemptRun takes an Array of Coin, takes the currency you wish to trade
+// and iterates over the run function with your coin/currency combination.
+function attemptRun(coins: Array<Coin>) {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
-    if (!currency) {
-        throw new Error('ENV variable CURRENCY is not defined!');
+
+    if (!currency || !ACCEPTED_CURRENCIES.indexOf(currency)) {
+        return new Error('please check your currency env variable');
     }
 
     coins.map(async coin => {
         try {
             const res = await run(coin, currency);
+
             if (res instanceof Error) {
                 return new Error(res.message);
             }
+
             reactivate(res, coin);
         } catch (e) {
             logIt({
@@ -52,16 +65,7 @@ function attemptRun(coins: Array<string>) {
 const coins = ['BTC', 'ETH', 'LTC'];
 attemptRun(coins);
 
-type NextRunTimeResponses =
-    | FIVE_MINS_MS
-    | FIFTEEN_MINS_MS
-    | THIRTY_MINS_MS
-    | ONE_HOUR_MS;
-
-function run(
-    coin: string,
-    currency: string
-): Promise<NextRunTimeResponses | Error> {
+function run(coin: Coin, currency: Currency): Promise<Millisecond | Error> {
     return new Promise(async (resolve, reject) => {
         logIt({
             title: 'running at',
