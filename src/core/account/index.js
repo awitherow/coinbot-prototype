@@ -2,21 +2,30 @@
 const { authClient } = require('../client');
 const logIt = require('../../helpers/logger');
 
+type Account = {
+    'id': string,
+    'currency': string,
+    'balance': string,
+    'available': string,
+    'hold': string,
+    'profile_id': string,
+};
+
 // getAccount is passed a type of account, by string.
 // it then resolves the first account of the user
 // https://docs.gdax.com/#list-accounts
-function getAccount(type: string) {
+function getAccount(type: string): Promise<Account | Error> {
     return new Promise((resolve, reject) =>
         authClient.getAccounts((err, res, data) => {
             if (err) {
-                return reject(err);
+                return reject(new Error(err));
             }
             if (data.message) {
-                return reject(data.message);
+                return reject(new Error(data.message));
             }
             return resolve(data.filter(acct => acct.currency === type)[0]);
         })
-    ).catch(e => new Error(e));
+    );
 }
 
 type Matches = {
@@ -34,24 +43,21 @@ type Matches = {
 
 // getAccountHistory returns the latest 10 account events.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id: string) {
+function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
     return new Promise((resolve, reject) =>
         authClient.getAccountHistory(id, (err, res, data: Array<Matches>) => {
             if (err) {
-                return reject(err);
+                return reject(new Error(err));
             }
             if (data.message) {
-                return reject(data.message);
+                return reject(new Error(data.message));
             }
             return resolve(
-                // transfer is ignored as we do not want to track transfers
-                // from coinbase. they will simply appear as new budget
-                // to be used by the app. slicing 0-25 for later performance
-                // and liklihood my order will not get split that bad.
+                // ignore transfers, get top 25.
                 data.filter(trade => trade.type !== 'transfer').slice(0, 25)
             );
         })
-    ).catch(e => new Error(e));
+    );
 }
 
 // getLastOrder gets last order of the account used.
@@ -61,7 +67,12 @@ async function getLastOrder(
     id: string,
     { coin, currency }: { coin: string, currency: string }
 ) {
-    const coinMatches = (await getAccountHistory(id)).filter(
+    const accountHistory = await getAccountHistory(id);
+    if (!Array.isArray(accountHistory)) {
+        throw new Error('No account history found!');
+    }
+
+    const coinMatches = accountHistory.filter(
         a => a.details.product_id === `${coin}-${currency}`
     );
     const lastOrderId = coinMatches[0].details.order_id;

@@ -16,20 +16,24 @@ const { getAccount, getLastOrder } = require('./core/account');
 // product related functions
 const { getSnapshot } = require('./core/product');
 
-function reactivate(time, coin) {
-    setInterval(attemptRun(coin), time);
+function reactivate(time: number, coin: string) {
+    setInterval(attemptRun([coin]), time);
     logIt({
         title: 'checking again',
         info: moment().add(time, 'milliseconds').fromNow(),
     });
 }
 
-function attemptRun() {
+function attemptRun(coins: Array<string>) {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
-    coins.map(coin => {
+    if (!currency) {
+        throw new Error('ENV variable CURRENCY is not defined!');
+    }
+
+    coins.map(async coin => {
         try {
-            run(coin, currency);
+            await run(coin, currency);
         } catch (e) {
             logIt({
                 form: 'error',
@@ -58,6 +62,14 @@ async function run(coin: string, currency: string) {
         getAccount(currency),
     ]);
 
+    if (
+        marketCoin instanceof Error ||
+        myCoinBalance instanceof Error ||
+        myCurrencyBalance instanceof Error
+    ) {
+        return new Error('Getting required gdax info failed.');
+    }
+
     const lastMatch = await getLastOrder(myCurrencyBalance.id, {
         coin,
         currency,
@@ -73,8 +85,9 @@ async function run(coin: string, currency: string) {
         console.log(`${coin} -> ${currency}`);
         if (lastMatch < 0) {
             const priceAtTimeOfSale =
-                Math.abs(lastMatch) / myCoinBalance.balance;
-            const diffSinceLastTrade = marketCoin.price - priceAtTimeOfSale;
+                Math.abs(lastMatch) / parseFloat(myCoinBalance.balance);
+            const diffSinceLastTrade =
+                parseFloat(marketCoin.price) - priceAtTimeOfSale;
 
             if (diffSinceLastTrade < -10) {
                 reactivate(ONE_HOUR_MS, coin);
@@ -83,6 +96,7 @@ async function run(coin: string, currency: string) {
                     title: 'Keep on the look out for potential further investment, Price drop',
                     info: diffSinceLastTrade,
                 });
+                return;
             } else if (diffSinceLastTrade > 10) {
                 reactivate(FIFTEEN_MINS_MS, coin);
                 logIt({
@@ -90,6 +104,7 @@ async function run(coin: string, currency: string) {
                     title: '${coin} price rising, checking more frequently',
                     info: diffSinceLastTrade,
                 });
+                return;
             } else if (diffSinceLastTrade > 20) {
                 if (twilioActivated) {
                     notifyUserViaText(
@@ -102,12 +117,14 @@ async function run(coin: string, currency: string) {
                     });
                 }
                 reactivate(FIVE_MINS_MS, coin);
+                return;
             } else {
                 logIt({
                     title: 'Price change not significant',
                     info: diffSinceLastTrade,
                 });
                 reactivate(THIRTY_MINS_MS, coin);
+                return;
             }
         }
     }
@@ -121,8 +138,10 @@ async function run(coin: string, currency: string) {
         console.log(`${coin} -> ${currency}`);
         if (lastMatch < 0) {
             const coinPurchasePrice =
-                myCurrencyBalance.balance / Math.abs(parseFloat(lastMatch));
-            const diffSinceLastTrade = marketCoin.price - coinPurchasePrice;
+                parseFloat(myCurrencyBalance.balance) /
+                Math.abs(parseFloat(lastMatch));
+            const diffSinceLastTrade =
+                parseFloat(marketCoin.price) - coinPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
                 reactivate(ONE_HOUR_MS, coin);
@@ -131,6 +150,7 @@ async function run(coin: string, currency: string) {
                     title: 'You bought bitcoin early. Has risen',
                     info: diffSinceLastTrade,
                 });
+                return;
             } else if (diffSinceLastTrade < -10) {
                 reactivate(FIFTEEN_MINS_MS, coin);
                 logIt({
@@ -138,6 +158,7 @@ async function run(coin: string, currency: string) {
                     title: `${coin} is rising, checking more often now.`,
                     info: diffSinceLastTrade,
                 });
+                return;
             } else if (diffSinceLastTrade < -20) {
                 if (twilioActivated) {
                     notifyUserViaText(
@@ -150,12 +171,14 @@ async function run(coin: string, currency: string) {
                     });
                 }
                 reactivate(FIVE_MINS_MS, coin);
+                return;
             } else {
                 logIt({
                     title: 'Price change not significant',
                     info: diffSinceLastTrade,
                 });
                 reactivate(THIRTY_MINS_MS, coin);
+                return;
             }
         }
     }
