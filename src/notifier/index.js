@@ -19,13 +19,13 @@ function notifyUserViaText(notification) {
             },
             function(err, data) {
                 if (err) {
-                    return reject(err);
+                    return reject(new Error(err));
                 } else {
                     return resolve(data);
                 }
             }
         );
-    }).catch(e => console.warn(e));
+    });
 }
 
 module.exports = {

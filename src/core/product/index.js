@@ -1,21 +1,32 @@
 // @flow
-const client = require('../client');
+const { pubClient } = require('../client');
+
+type Product = {
+    'trade_id': number,
+    'price': string,
+    'size': string,
+    'bid': string,
+    'ask': string,
+    'volume': string,
+    'time': string,
+};
 
 // getSnapshot returns a Promise that checks the products current status
 // this seems to be set to BTC automatically.
 // https://docs.gdax.com/#get-product-ticker
-function getSnapshot() {
-    return new Promise((resolve, reject) =>
+function getSnapshot(currency: string): Promise<Product | Error> {
+    return new Promise((resolve, reject) => {
+        let client = pubClient(currency);
         client.getProductTicker((err, res, data) => {
             if (err) {
-                return reject(err);
+                return reject(new Error(err));
             } else if (data.message) {
-                return reject(data.message);
+                return reject(new Error(data.message));
             } else {
                 return resolve(data);
             }
-        })
-    ).catch(e => console.warn(e));
+        });
+    });
 }
 
 module.exports = {
