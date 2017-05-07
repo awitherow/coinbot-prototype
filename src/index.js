@@ -25,8 +25,11 @@ function reactivate(time) {
 }
 
 function attemptRun() {
+    require('dotenv').config();
+    const currency = process.env.CURRENCY;
+
     try {
-        run();
+        run(currency);
     } catch (e) {
         logIt({
             form: 'error',
@@ -41,27 +44,27 @@ attemptRun();
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
-async function run() {
+async function run(currency: string) {
     logIt({
         title: 'running at',
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
-    const [marketBtc, myBTC, myUSD] = await Promise.all([
+    const [marketBtc, myBTC, myCurrency] = await Promise.all([
         getSnapshot(),
         getAccount('BTC'),
-        getAccount('USD'),
+        getAccount(currency),
     ]);
 
-    // btc -> usd
+    // btc -> currency
     if (Number(parseFloat(myBTC.balance)).toFixed(2) > 0) {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
-        console.log('bitcoin -> usd');
+        console.log(`bitcoin -> ${currency}`);
 
-        const lastMatch = await getLastOrder(myUSD.id);
+        const lastMatch = await getLastOrder(myCurrency.id);
         // last match should be a deficit of the last transfer you made
-        // aka, btc -> usd trade area should have deficit of usd, as we
-        // last purchased btc with usd.
+        // aka, btc -> currency trade area should have deficit of currency, as we
+        // last purchased btc with currency.
         if (lastMatch < 0) {
             const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
             const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
@@ -102,16 +105,19 @@ async function run() {
         }
     }
 
-    // usd -> btc
-    if (parseFloat(myUSD.balance) > 1) {
-        logIt({ title: 'USD Balance', info: parseFloat(myUSD.balance) });
-        console.log('usd -> bitcoin');
+    // currency -> btc
+    if (parseFloat(myCurrency.balance) > 1) {
+        logIt({
+            title: `${currency} Balance`,
+            info: parseFloat(myCurrency.balance),
+        });
+        console.log(`${currency} -> bitcoin`);
 
         const lastMatch = await getLastOrder(myBTC.id);
 
         if (lastMatch < 0) {
             const btcPurchasePrice =
-                myUSD.balance / Math.abs(parseFloat(lastMatch));
+                myCurrency.balance / Math.abs(parseFloat(lastMatch));
             const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
 
             if (diffSinceLastTrade > 10) {
