@@ -50,14 +50,14 @@ async function run(currency: string) {
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
-    const [marketBtc, myBTC, myCurrency] = await Promise.all([
+    const [marketBTC, myBTC, myCurrency] = await Promise.all([
         getSnapshot(),
         getAccount('BTC'),
         getAccount(currency),
     ]);
 
     // btc -> currency
-    if (Number(parseFloat(myBTC.balance)).toFixed(2) > 0) {
+    if (Number(parseFloat(myBTC.balance)).toFixed(3) > 0) {
         logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
         console.log(`bitcoin -> ${currency}`);
 
@@ -65,43 +65,42 @@ async function run(currency: string) {
         // last match should be a deficit of the last transfer you made
         // aka, btc -> currency trade area should have deficit of currency, as we
         // last purchased btc with currency.
-        if (lastMatch < 0) {
-            const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
-            const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
+        const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
+        const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
+        console.log(diffSinceLastTrade);
 
-            if (diffSinceLastTrade < -10) {
-                reactivate(ONE_HOUR_MS);
-                logIt({
-                    form: 'error',
-                    title: 'Keep on the look out for potential further investment, Price drop',
-                    info: diffSinceLastTrade,
-                });
-            } else if (diffSinceLastTrade > 10) {
-                reactivate(FIFTEEN_MINS_MS);
-                logIt({
-                    form: 'notice',
-                    title: 'BTC price rising, checking more frequently',
-                    info: diffSinceLastTrade,
-                });
-            } else if (diffSinceLastTrade > 20) {
-                if (twilioActivated) {
-                    notifyUserViaText(
-                        `SELL BTC! Significant difference: ${diffSinceLastTrade}.`
-                    );
-                } else {
-                    logIt({
-                        title: 'Price difference signficant, buy!',
-                        info: diffSinceLastTrade,
-                    });
-                }
-                reactivate(FIVE_MINS_MS);
+        if (diffSinceLastTrade < -10) {
+            reactivate(ONE_HOUR_MS);
+            logIt({
+                form: 'error',
+                title: 'Keep on the look out for potential further investment, Price drop',
+                info: diffSinceLastTrade,
+            });
+        } else if (diffSinceLastTrade > 10) {
+            reactivate(FIFTEEN_MINS_MS);
+            logIt({
+                form: 'notice',
+                title: 'BTC price rising, checking more frequently',
+                info: diffSinceLastTrade,
+            });
+        } else if (diffSinceLastTrade > 20) {
+            if (twilioActivated) {
+                notifyUserViaText(
+                    `SELL BTC! Significant difference: ${diffSinceLastTrade}.`
+                );
             } else {
                 logIt({
-                    title: 'Price change not significant',
+                    title: 'Price difference signficant, buy!',
                     info: diffSinceLastTrade,
                 });
-                reactivate(THIRTY_MINS_MS);
             }
+            reactivate(FIVE_MINS_MS);
+        } else {
+            logIt({
+                title: 'Price change not significant',
+                info: diffSinceLastTrade,
+            });
+            reactivate(THIRTY_MINS_MS);
         }
     }
 
@@ -115,44 +114,42 @@ async function run(currency: string) {
 
         const lastMatch = await getLastOrder(myBTC.id);
 
-        if (lastMatch < 0) {
-            const btcPurchasePrice =
-                myCurrency.balance / Math.abs(parseFloat(lastMatch));
-            const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
+        const btcPurchasePrice =
+            myCurrency.balance / Math.abs(parseFloat(lastMatch));
+        const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
 
-            if (diffSinceLastTrade > 10) {
-                reactivate(ONE_HOUR_MS);
-                logIt({
-                    form: 'error',
-                    title: 'You bought bitcoin early. Has risen',
-                    info: diffSinceLastTrade,
-                });
-            } else if (diffSinceLastTrade < -10) {
-                reactivate(FIFTEEN_MINS_MS);
-                logIt({
-                    form: 'notice',
-                    title: 'BTC is rising, checking more often now.',
-                    info: diffSinceLastTrade,
-                });
-            } else if (diffSinceLastTrade < -20) {
-                if (twilioActivated) {
-                    notifyUserViaText(
-                        `Buy BTC! Significant difference: ${diffSinceLastTrade}.`
-                    );
-                } else {
-                    logIt({
-                        title: 'Price difference signficant, sell!',
-                        info: diffSinceLastTrade,
-                    });
-                }
-                reactivate(FIVE_MINS_MS);
+        if (diffSinceLastTrade > 10) {
+            reactivate(ONE_HOUR_MS);
+            logIt({
+                form: 'error',
+                title: 'You bought bitcoin early. Has risen',
+                info: diffSinceLastTrade,
+            });
+        } else if (diffSinceLastTrade < -10) {
+            reactivate(FIFTEEN_MINS_MS);
+            logIt({
+                form: 'notice',
+                title: 'BTC is rising, checking more often now.',
+                info: diffSinceLastTrade,
+            });
+        } else if (diffSinceLastTrade < -20) {
+            if (twilioActivated) {
+                notifyUserViaText(
+                    `Buy BTC! Significant difference: ${diffSinceLastTrade}.`
+                );
             } else {
                 logIt({
-                    title: 'Price change not significant',
+                    title: 'Price difference signficant, sell!',
                     info: diffSinceLastTrade,
                 });
-                reactivate(THIRTY_MINS_MS);
             }
+            reactivate(FIVE_MINS_MS);
+        } else {
+            logIt({
+                title: 'Price change not significant',
+                info: diffSinceLastTrade,
+            });
+            reactivate(THIRTY_MINS_MS);
         }
     }
 }
