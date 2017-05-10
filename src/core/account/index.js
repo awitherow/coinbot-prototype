@@ -2,10 +2,19 @@
 const client = require('../client');
 const logIt = require('../../helpers/logger');
 
+type Account = {
+    'id': string,
+    'currency': string,
+    'balance': string,
+    'available': string,
+    'hold': string,
+    'profile_id': string,
+};
+
 // getAccount is passed a type of account, by string.
 // it then resolves the first account of the user
 // https://docs.gdax.com/#list-accounts
-function getAccount(type: string) {
+function getAccount(type: string): Promise<Account | Error> {
     return new Promise((resolve, reject) =>
         client.getAccounts((err, res, data) => {
             if (err) {
@@ -34,7 +43,7 @@ type Matches = {
 
 // getAccountHistory returns the latest 10 account events.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id: string) {
+function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
     return new Promise((resolve, reject) =>
         client.getAccountHistory(id, (err, res, data: Array<Matches>) => {
             if (err) {
