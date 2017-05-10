@@ -9,14 +9,14 @@ function getAccount(type: string) {
     return new Promise((resolve, reject) =>
         client.getAccounts((err, res, data) => {
             if (err) {
-                return reject(err);
+                return reject(new Error(err));
             }
             if (data.message) {
-                return reject(data.message);
+                return reject(new Error(data.message));
             }
             return resolve(data.filter(acct => acct.currency === type)[0]);
         })
-    ).catch(e => console.warn(e));
+    );
 }
 
 type Matches = {
@@ -38,10 +38,10 @@ function getAccountHistory(id: string) {
     return new Promise((resolve, reject) =>
         client.getAccountHistory(id, (err, res, data: Array<Matches>) => {
             if (err) {
-                return reject(err);
+                return reject(new Error(err));
             }
             if (data.message) {
-                return reject(data.message);
+                return reject(new Error(data.message));
             }
             return resolve(
                 // transfer is ignored as we do not want to track transfers
@@ -51,7 +51,7 @@ function getAccountHistory(id: string) {
                 data.filter(trade => trade.type !== 'transfer').slice(0, 25)
             );
         })
-    ).catch(e => console.warn(e));
+    );
 }
 
 // getLastOrder gets last order of the account used.
