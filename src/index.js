@@ -16,7 +16,13 @@ const { getAccount, getLastOrder } = require('./core/account');
 // product related functions
 const { getSnapshot } = require('./core/product');
 
-function reactivate(time) {
+type Millisecond =
+    | FIVE_MINS_MS
+    | FIFTEEN_MINS_MS
+    | THIRTY_MINS_MS
+    | ONE_HOUR_MS;
+
+function reactivate(time: Millisecond) {
     setInterval(attemptRun, time);
     logIt({
         title: 'checking again',
