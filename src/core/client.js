@@ -8,4 +8,7 @@ if (!KEY || !SECRET || !PASS || !ENDPOINT) {
     throw new Error('Coinbase client environment variables not properly set.');
 }
 
-module.exports = new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT);
+module.exports = {
+    authClient: new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT),
+    pubClient: (coinCurreny: string) => new gdax.PublicClient(coinCurreny),
+};

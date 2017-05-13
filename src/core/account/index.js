@@ -1,5 +1,5 @@
 // @flow
-const client = require('../client');
+const { authClient } = require('../client');
 const logIt = require('../../helpers/logger');
 
 type Account = {
@@ -16,7 +16,7 @@ type Account = {
 // https://docs.gdax.com/#list-accounts
 function getAccount(type: string): Promise<Account | Error> {
     return new Promise((resolve, reject) =>
-        client.getAccounts((err, res, data) => {
+        authClient.getAccounts((err, res, data) => {
             if (err) {
                 return reject(new Error(err));
             }
@@ -45,7 +45,7 @@ type Matches = {
 // https://docs.gdax.com/#get-account-history
 function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
     return new Promise((resolve, reject) =>
-        client.getAccountHistory(id, (err, res, data: Array<Matches>) => {
+        authClient.getAccountHistory(id, (err, res, data: Array<Matches>) => {
             if (err) {
                 return reject(new Error(err));
             }
