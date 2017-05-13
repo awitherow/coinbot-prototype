@@ -57,7 +57,7 @@ async function run(currency: string) {
     });
 
     const [marketBTC, myBTC, myCurrency] = await Promise.all([
-        getSnapshot(`BTC-${myCurrency}`),
+        getSnapshot(`BTC-${currency}`),
         getAccount('BTC'),
         getAccount(currency),
     ]);

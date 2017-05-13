@@ -1,3 +1,5 @@
+[![wercker status](https://app.wercker.com/status/3857add861dc1059ff3c28976347ce04/s/master "wercker status")](https://app.wercker.com/project/byKey/3857add861dc1059ff3c28976347ce04)
+
 # coinbot
 coin trading assistant bot
 

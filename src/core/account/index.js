@@ -1,4 +1,5 @@
 // @flow
+
 const { authClient } = require('../client');
 const logIt = require('../../helpers/logger');
 

@@ -15,7 +15,7 @@ type Product = {
 // this seems to be set to BTC automatically.
 function getSnapshot(cc: string): Promise<Product | Error> {
     return new Promise((resolve, reject) => {
-        let client = new pubClient(cc);
+        let client = pubClient(cc);
         return client.getProductTicker((err, res, data) => {
             if (err) {
                 return reject(new Error(err));
@@ -24,8 +24,8 @@ function getSnapshot(cc: string): Promise<Product | Error> {
             } else {
                 return resolve(data);
             }
-        })
-    );
+        });
+    });
 }
 
 module.exports = {
