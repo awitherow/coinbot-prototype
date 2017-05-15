@@ -6,7 +6,8 @@
   "scripts": {
     "go": "node index.js",
     "dev": "nodemon index.js",
-    "test": "jest"
+    "test": "npm run flow && jest",
+    "flow": "flow --show-all-errors"
   },
   "jest": {
     "testEnvironment": "node"

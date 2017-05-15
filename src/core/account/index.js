@@ -29,7 +29,7 @@ function getAccount(type: string): Promise<Account | Error> {
     );
 }
 
-type Matches = {
+type Match = {
     'id': string,
     'created_at': string,
     'amount': string,
@@ -44,9 +44,9 @@ type Matches = {
 
 // getAccountHistory returns the latest 10 account events.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
+function getAccountHistory(id: string): Promise<Array<Match> | Error> {
     return new Promise((resolve, reject) =>
-        authClient.getAccountHistory(id, (err, res, data: Array<Matches>) => {
+        authClient.getAccountHistory(id, (err, res, data: Array<Match>) => {
             if (err) {
                 return reject(new Error(err));
             }
@@ -64,10 +64,24 @@ function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
     );
 }
 
+type LastCoinOrder = {
+    orderType:
+        | 'BTC-USD'
+        | 'BTC-EUR'
+        | 'BTC-GBP'
+        | 'ETH-USD'
+        | 'LTC-USD'
+        | 'ETH-BTC'
+        | 'LTC-BTC',
+    coin: 'BTC' | 'ETH' | 'LTC',
+    matches: Array<Match>,
+    amount: number,
+};
+
 // getLastCoinOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getLastCoinOrder(id: string) {
+async function getLastCoinOrder(id: string): LastCoinOrder {
     const allMatches = await getAccountHistory(id);
     const lastMatch = allMatches[0];
     const orderType = lastMatch.details.product_id;
