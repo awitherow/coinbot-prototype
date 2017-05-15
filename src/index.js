@@ -67,18 +67,16 @@ async function run(currency: string) {
         getAccount(coin),
     ]);
 
-    // btc -> currency
-    if (Number(parseFloat(myBTC.balance)).toFixed(3) > 0) {
-        logIt({ title: 'btc balance', info: parseFloat(myBTC.balance) });
-        console.log(`bitcoin -> ${currency}`);
+    // coin -> currency
+    if (Number(parseFloat(myCoin.balance)).toFixed(3) > 0) {
+        logIt({ title: `${coin} balance`, info: parseFloat(myCoin.balance) });
+        console.log(`${coin} -> ${currency}`);
 
-        const lastMatch = await getLastOrder(myCurrency.id);
         // last match should be a deficit of the last transfer you made
-        // aka, btc -> currency trade area should have deficit of currency, as we
-        // last purchased btc with currency.
-        const priceAtTimeOfSale = Math.abs(lastMatch) / myBTC.balance;
-        const diffSinceLastTrade = marketBTC.price - priceAtTimeOfSale;
-        console.log(diffSinceLastTrade);
+        // aka, coin -> currency trade area should have deficit of currency, as we
+        // last purchased coin with currency.
+        const priceAtTimeOfSale = Math.abs(amount) / myCoin.balance;
+        const diffSinceLastTrade = marketCoin.price - priceAtTimeOfSale;
 
         if (diffSinceLastTrade < -10) {
             reactivate(ONE_HOUR_MS);
@@ -91,13 +89,13 @@ async function run(currency: string) {
             reactivate(FIFTEEN_MINS_MS);
             logIt({
                 form: 'notice',
-                title: 'BTC price rising, checking more frequently',
+                title: `${coin} price rising, checking more frequently`,
                 info: diffSinceLastTrade,
             });
         } else if (diffSinceLastTrade > 20) {
             if (twilioActivated) {
                 notifyUserViaText(
-                    `SELL BTC! Significant difference: ${diffSinceLastTrade}.`
+                    `SELL ${coin}! Significant difference: ${diffSinceLastTrade}.`
                 );
             } else {
                 logIt({
@@ -115,38 +113,36 @@ async function run(currency: string) {
         }
     }
 
-    // currency -> btc
+    // currency -> coin
     if (parseFloat(myCurrency.balance) > 1) {
         logIt({
             title: `${currency} Balance`,
             info: parseFloat(myCurrency.balance),
         });
-        console.log(`${currency} -> bitcoin`);
+        console.log(`${currency} -> ${coin}`);
 
-        const lastMatch = await getLastOrder(myBTC.id);
-
-        const btcPurchasePrice =
-            myCurrency.balance / Math.abs(parseFloat(lastMatch));
-        const diffSinceLastTrade = marketBTC.price - btcPurchasePrice;
+        const priceAtTimeOfSale =
+            myCurrency.balance / Math.abs(parseFloat(amount));
+        const diffSinceLastTrade = marketCoin.price - priceAtTimeOfSale;
 
         if (diffSinceLastTrade > 10) {
             reactivate(ONE_HOUR_MS);
             logIt({
                 form: 'error',
-                title: 'You bought bitcoin early. Has risen',
+                title: `You bought ${coin} early. Has risen`,
                 info: diffSinceLastTrade,
             });
         } else if (diffSinceLastTrade < -10) {
             reactivate(FIFTEEN_MINS_MS);
             logIt({
                 form: 'notice',
-                title: 'BTC is rising, checking more often now.',
+                title: `${coin} is rising, checking more often now.`,
                 info: diffSinceLastTrade,
             });
         } else if (diffSinceLastTrade < -20) {
             if (twilioActivated) {
                 notifyUserViaText(
-                    `Buy BTC! Significant difference: ${diffSinceLastTrade}.`
+                    `Buy ${coin}! Significant difference: ${diffSinceLastTrade}.`
                 );
             } else {
                 logIt({
