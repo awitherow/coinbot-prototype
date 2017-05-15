@@ -64,20 +64,30 @@ function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
     );
 }
 
-// getLastOrder gets last order of the account used.
+// getLastCoinOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getLastOrder(id: string) {
-    const bitCoinMatches = (await getAccountHistory(id)).filter(
-        a => a.details.product_id === 'BTC-USD'
+async function getLastCoinOrder(id: string) {
+    const allMatches = await getAccountHistory(id);
+    const lastMatch = allMatches[0];
+    const orderType = lastMatch.details.product_id;
+    const matches = allMatches.filter(
+        a =>
+            a.details.product_id === orderType &&
+            a.created_at === lastMatch.created_at
     );
-    const lastOrderId = bitCoinMatches[0].details.order_id;
-    return bitCoinMatches
-        .filter(m => m.details.order_id === lastOrderId)
-        .reduce((acc, m) => acc + parseFloat(m.amount), 0);
+
+    return {
+        orderType,
+        coin: orderType.split('-')[0],
+        matches,
+        amount: matches
+            .filter(m => m.details.order_id === lastMatch.details.order_id)
+            .reduce((acc, m) => acc + parseFloat(m.amount), 0),
+    };
 }
 
 module.exports = {
     getAccount,
-    getLastOrder,
+    getLastCoinOrder,
 };

@@ -11,7 +11,7 @@ const {
 } = require('./helpers/constants.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
 // account related functions
-const { getAccount, getLastOrder } = require('./core/account');
+const { getAccount, getLastCoinOrder } = require('./core/account');
 
 // product related functions
 const { getSnapshot } = require('./core/product');
@@ -56,10 +56,15 @@ async function run(currency: string) {
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
-    const [marketBTC, myBTC, myCurrency] = await Promise.all([
-        getSnapshot(`BTC-${currency}`),
-        getAccount('BTC'),
-        getAccount(currency),
+    // get coin that is being used.
+    const myCurrency = await getAccount(currency);
+    const { orderType, coin, matches, amount } = await getLastCoinOrder(
+        myCurrency.id
+    );
+
+    const [marketCoin, myCoin] = await Promise.all([
+        getSnapshot(orderType),
+        getAccount(coin),
     ]);
 
     // btc -> currency
