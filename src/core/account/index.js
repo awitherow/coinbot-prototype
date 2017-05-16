@@ -5,11 +5,7 @@ const logIt = require('../../helpers/logger');
 
 type Account = {
     'id': string,
-    'currency': string,
-    'balance': string,
-    'available': string,
-    'hold': string,
-    'profile_id': string,
+    'balance': number,
 };
 
 // getAccount is passed a type of account, by string.
@@ -24,7 +20,11 @@ function getAccount(type: string): Promise<Account | Error> {
             if (data.message) {
                 return reject(new Error(data.message));
             }
-            return resolve(data.filter(acct => acct.currency === type)[0]);
+            const acct = data.filter(acct => acct.currency === type)[0];
+            return resolve({
+                id: acct.id,
+                balance: parseFloat(acct.balance),
+            });
         })
     );
 }
@@ -64,14 +64,14 @@ function getAccountHistory(id: string): Promise<Array<Match> | Error> {
     );
 }
 
-type LastCoinOrder = {
+type CoinOrder = {
     orderType: string,
     coin: string,
     matches: Array<Match>,
     amount: number,
 };
 
-function prepareLastOrder(matches) {
+function prepareLastOrder(matches: Array<Match>): CoinOrder {
     const lastMatchDetails = matches[0].details;
     const orderType = lastMatchDetails.product_id;
     matches = matches.filter(
@@ -88,10 +88,10 @@ function prepareLastOrder(matches) {
     };
 }
 
-// getLastCoinOrder gets last order of the account used.
+// getCoinOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getLastCoinOrder(id: string): Promise<LastCoinOrder | Error> {
+async function getCoinOrder(id: string): Promise<CoinOrder | Error> {
     const allMatches = await getAccountHistory(id);
     if (allMatches instanceof Error) {
         return allMatches;
@@ -102,6 +102,6 @@ async function getLastCoinOrder(id: string): Promise<LastCoinOrder | Error> {
 
 module.exports = {
     getAccount,
-    getLastCoinOrder,
+    getCoinOrder,
     prepareLastOrder,
 };
