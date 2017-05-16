@@ -29,7 +29,7 @@ function getAccount(type: string): Promise<Account | Error> {
     );
 }
 
-type Matches = {
+type Match = {
     'id': string,
     'created_at': string,
     'amount': string,
@@ -44,9 +44,9 @@ type Matches = {
 
 // getAccountHistory returns the latest 10 account events.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
+function getAccountHistory(id: string): Promise<Array<Match> | Error> {
     return new Promise((resolve, reject) =>
-        authClient.getAccountHistory(id, (err, res, data: Array<Matches>) => {
+        authClient.getAccountHistory(id, (err, res, data: Array<Match>) => {
             if (err) {
                 return reject(new Error(err));
             }
@@ -64,20 +64,44 @@ function getAccountHistory(id: string): Promise<Array<Matches> | Error> {
     );
 }
 
-// getLastOrder gets last order of the account used.
+type LastCoinOrder = {
+    orderType: string,
+    coin: string,
+    matches: Array<Match>,
+    amount: number,
+};
+
+function prepareLastOrder(matches) {
+    const lastMatchDetails = matches[0].details;
+    const orderType = lastMatchDetails.product_id;
+    matches = matches.filter(
+        ({ details }) =>
+            details.product_id === orderType &&
+            details.order_id === lastMatchDetails.order_id
+    );
+
+    return {
+        orderType,
+        coin: orderType.split('-')[0],
+        matches,
+        amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
+    };
+}
+
+// getLastCoinOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getLastOrder(id: string) {
-    const bitCoinMatches = (await getAccountHistory(id)).filter(
-        a => a.details.product_id === 'BTC-USD'
-    );
-    const lastOrderId = bitCoinMatches[0].details.order_id;
-    return bitCoinMatches
-        .filter(m => m.details.order_id === lastOrderId)
-        .reduce((acc, m) => acc + parseFloat(m.amount), 0);
+async function getLastCoinOrder(id: string): Promise<LastCoinOrder | Error> {
+    const allMatches = await getAccountHistory(id);
+    if (allMatches instanceof Error) {
+        return allMatches;
+    }
+
+    return prepareLastOrder(allMatches);
 }
 
 module.exports = {
     getAccount,
-    getLastOrder,
+    getLastCoinOrder,
+    prepareLastOrder,
 };
