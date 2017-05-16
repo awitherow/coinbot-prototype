@@ -34,6 +34,10 @@ function attemptRun() {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
 
+    if (!currency) {
+        return Error('Please set your CURRENCY env');
+    }
+
     try {
         run(currency);
     } catch (e) {

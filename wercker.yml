@@ -1,0 +1,10 @@
+box: node
+test:
+  steps:
+    - install-packages:
+      packages: libelf1 git
+    - script:
+        name: install
+        code: |
+          yarn install
+    - npm-test
