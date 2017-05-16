@@ -65,43 +65,43 @@ function getAccountHistory(id: string): Promise<Array<Match> | Error> {
 }
 
 type LastCoinOrder = {
-    orderType:
-        | 'BTC-USD'
-        | 'BTC-EUR'
-        | 'BTC-GBP'
-        | 'ETH-USD'
-        | 'LTC-USD'
-        | 'ETH-BTC'
-        | 'LTC-BTC',
-    coin: 'BTC' | 'ETH' | 'LTC',
+    orderType: string,
+    coin: string,
     matches: Array<Match>,
     amount: number,
 };
 
-// getLastCoinOrder gets last order of the account used.
-// gets BTC only at the moment, ensures if an order is split it will find
-// all parts of that order and get the sum of all
-async function getLastCoinOrder(id: string): LastCoinOrder {
-    const allMatches = await getAccountHistory(id);
-    const lastMatch = allMatches[0];
-    const orderType = lastMatch.details.product_id;
-    const matches = allMatches.filter(
-        a =>
-            a.details.product_id === orderType &&
-            a.created_at === lastMatch.created_at
+function prepareLastOrder(matches) {
+    const lastMatchDetails = matches[0].details;
+    const orderType = lastMatchDetails.product_id;
+    matches = matches.filter(
+        ({ details }) =>
+            details.product_id === orderType &&
+            details.order_id === lastMatchDetails.order_id
     );
 
     return {
         orderType,
         coin: orderType.split('-')[0],
         matches,
-        amount: matches
-            .filter(m => m.details.order_id === lastMatch.details.order_id)
-            .reduce((acc, m) => acc + parseFloat(m.amount), 0),
+        amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
     };
+}
+
+// getLastCoinOrder gets last order of the account used.
+// gets BTC only at the moment, ensures if an order is split it will find
+// all parts of that order and get the sum of all
+async function getLastCoinOrder(id: string): Promise<LastCoinOrder | Error> {
+    const allMatches = await getAccountHistory(id);
+    if (allMatches instanceof Error) {
+        return allMatches;
+    }
+
+    return prepareLastOrder(allMatches);
 }
 
 module.exports = {
     getAccount,
     getLastCoinOrder,
+    prepareLastOrder,
 };
