@@ -71,6 +71,7 @@ type CoinOrder = {
     amount: number,
 };
 
+// prepareLastOrder takes a sorted(date) array of matches and returns a CoinOrder.
 function prepareLastOrder(matches: Array<Match>): CoinOrder {
     const lastMatchDetails = matches[0].details;
     const orderType = lastMatchDetails.product_id;
