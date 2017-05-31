@@ -6,6 +6,7 @@ const logIt = require('../../helpers/logger');
 type Account = {
     'id': string,
     'balance': number,
+    'currency': string,
 };
 
 // getAccount is passed a type of account, by string.
@@ -24,6 +25,7 @@ function getAccount(type: string): Promise<Account | Error> {
             return resolve({
                 id: acct.id,
                 balance: parseFloat(acct.balance),
+                currency: acct.currency,
             });
         })
     );
@@ -58,7 +60,7 @@ function getAccountHistory(id: string): Promise<Array<Match> | Error> {
                 // from coinbase. they will simply appear as new budget
                 // to be used by the app. slicing 0-25 for later performance
                 // and liklihood my order will not get split that bad.
-                data.filter(trade => trade.type !== 'transfer').slice(0, 25)
+                data.filter(trade => trade.type !== 'transfer')
             );
         })
     );
@@ -66,13 +68,18 @@ function getAccountHistory(id: string): Promise<Array<Match> | Error> {
 
 type CoinOrder = {
     orderType: string,
-    coin: string,
     matches: Array<Match>,
     amount: number,
 };
 
 // prepareLastOrder takes a sorted(date) array of matches and returns a CoinOrder.
-function prepareLastOrder(matches: Array<Match>): CoinOrder {
+function prepareLastOrder(
+    matches: Array<Match>,
+    coinCurrency: string
+): CoinOrder {
+    const lastMatchesOfType = matches.filter(match => {
+        return match.details.product_id === coinCurrency;
+    })[0];
     const lastMatchDetails = matches[0].details;
     const orderType = lastMatchDetails.product_id;
     matches = matches.filter(
@@ -83,7 +90,6 @@ function prepareLastOrder(matches: Array<Match>): CoinOrder {
 
     return {
         orderType,
-        coin: orderType.split('-')[0],
         matches,
         amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
     };
@@ -92,13 +98,16 @@ function prepareLastOrder(matches: Array<Match>): CoinOrder {
 // getCoinOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getCoinOrder(id: string): Promise<CoinOrder | Error> {
-    const allMatches = await getAccountHistory(id);
+async function getCoinOrder(
+    account: Account,
+    coin: string
+): Promise<CoinOrder | Error> {
+    const allMatches = await getAccountHistory(account.id);
     if (allMatches instanceof Error) {
         return allMatches;
     }
 
-    return prepareLastOrder(allMatches);
+    return prepareLastOrder(allMatches, `${coin}-${account.currency}`);
 }
 
 module.exports = {
