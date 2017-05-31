@@ -7,7 +7,7 @@ coin trading assistant bot
 
 ### requirements
 
-- [node](https://nodejs.org/en/) - v7.8.0 min
+- [node](https://nodejs.org/en/) - v7.10.0 min
 - [yarn](https://code.facebook.com/posts/1840075619545360)
 
 #### optional
