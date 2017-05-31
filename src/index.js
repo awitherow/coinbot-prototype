@@ -30,7 +30,7 @@ function reactivate(time: Millisecond) {
     });
 }
 
-function check() {
+function check(coin: string) {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
 
@@ -40,7 +40,7 @@ function check() {
 
     return new Promise(fulfill => {
         try {
-            execute(currency, fulfill);
+            execute(coin, currency, fulfill);
         } catch (e) {
             reactivate(FIFTEEN_MINS_MS);
             return Error(e);
@@ -51,11 +51,11 @@ function check() {
 async function init() {
     const coins = ['BTC', 'ETH', 'LTC'];
 
-    for (let i = 0; i <= coins.length; i++) {
+    for (let i = 0; i <= coins.length - 1; i++) {
         try {
             await check(coins[i]);
         } catch (e) {
-            logIt({
+            return logIt({
                 form: 'error',
                 title: 'failed to run',
                 info: e,
@@ -68,9 +68,9 @@ init();
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
-async function execute(currency: string, fulfill: Function) {
+async function execute(coin: string, currency: string, fulfill: Function) {
     logIt({
-        title: 'running at',
+        title: `running ${coin} at`,
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
@@ -80,12 +80,12 @@ async function execute(currency: string, fulfill: Function) {
         return new Error('Could not get account based on your currency');
     }
 
-    const lastCoinOrder = await getLastCoinOrder(myCurrency.id);
+    const lastCoinOrder = await getLastCoinOrder(myCurrency, coin);
     if (lastCoinOrder instanceof Error) {
         return new Error('Could not fetch latest coin order');
     }
 
-    const { orderType, coin, matches, amount } = lastCoinOrder;
+    const { orderType, matches, amount } = lastCoinOrder;
     const [marketCoin, coinBalance] = await Promise.all([
         getProductSnapshot(orderType),
         getAccount(coin),
@@ -198,4 +198,6 @@ async function execute(currency: string, fulfill: Function) {
             fulfill();
         }
     }
+
+    fulfill('Nothing found');
 }
