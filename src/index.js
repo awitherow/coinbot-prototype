@@ -22,8 +22,8 @@ type Millisecond =
     | THIRTY_MINS_MS
     | ONE_HOUR_MS;
 
-function reactivate(time: Millisecond) {
-    setInterval(check, time);
+function reactivate(coin: string, time: Millisecond) {
+    setInterval(() => check(coin), time);
     logIt({
         title: 'checking again',
         info: moment().add(time, 'milliseconds').fromNow(),
@@ -39,12 +39,12 @@ function check(coin: string) {
         return Error('Please set your CURRENCY env');
     }
 
-    return new Promise(fulfill => {
+    return new Promise((fulfill, reject) => {
         try {
-            execute(coin, currency, fulfill);
+            execute(coin, currency, { fulfill, reject });
         } catch (e) {
-            reactivate(FIFTEEN_MINS_MS);
-            return Error(e);
+            reactivate(coin, FIFTEEN_MINS_MS);
+            Error(e);
         }
     });
 }
@@ -57,20 +57,31 @@ async function init() {
         try {
             await check(coins[i]);
         } catch (e) {
-            return logIt({
+            await reactivate(coins[i], FIFTEEN_MINS_MS);
+            logIt({
                 form: 'error',
                 title: 'failed to run',
                 info: e,
             });
         }
+        console.log('-----------');
     }
 }
 
 init();
 
+type PromiseMethods = {
+    fulfill: Function,
+    reject: Function,
+};
+
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
-async function execute(coin: string, currency: string, fulfill: Function) {
+async function execute(
+    coin: string,
+    currency: string,
+    { fulfill, reject }: PromiseMethods
+) {
     logIt({
         title: `running ${coin} at`,
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
@@ -103,7 +114,6 @@ async function execute(coin: string, currency: string, fulfill: Function) {
             title: `${coin} balance`,
             info: parseFloat(coinBalance.balance),
         });
-        console.log(`${coin} -> ${currency}`);
 
         // last match should be a deficit of the last transfer you made
         // aka, coin -> currency trade area should have deficit of currency, as we
@@ -112,7 +122,7 @@ async function execute(coin: string, currency: string, fulfill: Function) {
         const diffSinceLastTrade = marketCoin - priceAtTimeOfSale;
 
         if (diffSinceLastTrade < -10) {
-            reactivate(ONE_HOUR_MS);
+            reactivate(coin, ONE_HOUR_MS);
             logIt({
                 form: 'error',
                 title: 'Keep on the look out for potential further investment, Price drop',
@@ -120,7 +130,7 @@ async function execute(coin: string, currency: string, fulfill: Function) {
             });
             fulfill();
         } else if (diffSinceLastTrade > 10) {
-            reactivate(FIFTEEN_MINS_MS);
+            reactivate(coin, FIFTEEN_MINS_MS);
             logIt({
                 form: 'notice',
                 title: `${coin} price rising, checking more frequently`,
@@ -138,14 +148,14 @@ async function execute(coin: string, currency: string, fulfill: Function) {
                     info: diffSinceLastTrade,
                 });
             }
-            reactivate(FIVE_MINS_MS);
+            reactivate(coin, FIVE_MINS_MS);
             fulfill();
         } else {
             logIt({
                 title: 'Price change not significant',
                 info: diffSinceLastTrade,
             });
-            reactivate(THIRTY_MINS_MS);
+            reactivate(coin, THIRTY_MINS_MS);
             fulfill();
         }
     }
@@ -163,7 +173,7 @@ async function execute(coin: string, currency: string, fulfill: Function) {
         const diffSinceLastTrade = marketCoin - priceAtTimeOfSale;
 
         if (diffSinceLastTrade > 10) {
-            reactivate(ONE_HOUR_MS);
+            reactivate(coin, ONE_HOUR_MS);
             logIt({
                 form: 'error',
                 title: `You bought ${coin} early. Has risen`,
@@ -171,7 +181,7 @@ async function execute(coin: string, currency: string, fulfill: Function) {
             });
             fulfill();
         } else if (diffSinceLastTrade < -10) {
-            reactivate(FIFTEEN_MINS_MS);
+            reactivate(coin, FIFTEEN_MINS_MS);
             logIt({
                 form: 'notice',
                 title: `${coin} is rising, checking more often now.`,
@@ -189,17 +199,17 @@ async function execute(coin: string, currency: string, fulfill: Function) {
                     info: diffSinceLastTrade,
                 });
             }
-            reactivate(FIVE_MINS_MS);
+            reactivate(coin, FIVE_MINS_MS);
             fulfill();
         } else {
             logIt({
                 title: 'Price change not significant',
                 info: diffSinceLastTrade,
             });
-            reactivate(THIRTY_MINS_MS);
+            reactivate(coin, THIRTY_MINS_MS);
             fulfill();
         }
     }
 
-    fulfill('Nothing found');
+    reject('Could not trade coin due to lack of sufficient funding.');
 }
