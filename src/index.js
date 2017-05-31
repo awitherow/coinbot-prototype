@@ -23,14 +23,14 @@ type Millisecond =
     | ONE_HOUR_MS;
 
 function reactivate(time: Millisecond) {
-    setInterval(attemptRun, time);
+    setInterval(check, time);
     logIt({
         title: 'checking again',
         info: moment().add(time, 'milliseconds').fromNow(),
     });
 }
 
-function attemptRun() {
+function check() {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
 
@@ -38,23 +38,37 @@ function attemptRun() {
         return Error('Please set your CURRENCY env');
     }
 
-    try {
-        run(currency);
-    } catch (e) {
-        logIt({
-            form: 'error',
-            title: 'failed to run',
-            info: e,
-        });
-        reactivate(FIFTEEN_MINS_MS);
+    return new Promise(fulfill => {
+        try {
+            execute(currency, fulfill);
+        } catch (e) {
+            reactivate(FIFTEEN_MINS_MS);
+            return Error(e);
+        }
+    });
+}
+
+async function init() {
+    const coins = ['BTC', 'ETH', 'LTC'];
+
+    for (let i = 0; i <= coins.length; i++) {
+        try {
+            await check(coins[i]);
+        } catch (e) {
+            logIt({
+                form: 'error',
+                title: 'failed to run',
+                info: e,
+            });
+        }
     }
 }
 
-attemptRun();
+init();
 
 // also upon completion, it will be run on a setInterval determined on the
 // decide() function that will be used later.
-async function run(currency: string) {
+async function execute(currency: string, fulfill: Function) {
     logIt({
         title: 'running at',
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
@@ -102,6 +116,7 @@ async function run(currency: string) {
                 title: 'Keep on the look out for potential further investment, Price drop',
                 info: diffSinceLastTrade,
             });
+            fulfill();
         } else if (diffSinceLastTrade > 10) {
             reactivate(FIFTEEN_MINS_MS);
             logIt({
@@ -109,6 +124,7 @@ async function run(currency: string) {
                 title: `${coin} price rising, checking more frequently`,
                 info: diffSinceLastTrade,
             });
+            fulfill();
         } else if (diffSinceLastTrade > 20) {
             if (twilioActivated) {
                 notifyUserViaText(
@@ -121,12 +137,14 @@ async function run(currency: string) {
                 });
             }
             reactivate(FIVE_MINS_MS);
+            fulfill();
         } else {
             logIt({
                 title: 'Price change not significant',
                 info: diffSinceLastTrade,
             });
             reactivate(THIRTY_MINS_MS);
+            fulfill();
         }
     }
 
@@ -149,6 +167,7 @@ async function run(currency: string) {
                 title: `You bought ${coin} early. Has risen`,
                 info: diffSinceLastTrade,
             });
+            fulfill();
         } else if (diffSinceLastTrade < -10) {
             reactivate(FIFTEEN_MINS_MS);
             logIt({
@@ -156,6 +175,7 @@ async function run(currency: string) {
                 title: `${coin} is rising, checking more often now.`,
                 info: diffSinceLastTrade,
             });
+            fulfill();
         } else if (diffSinceLastTrade < -20) {
             if (twilioActivated) {
                 notifyUserViaText(
@@ -168,12 +188,14 @@ async function run(currency: string) {
                 });
             }
             reactivate(FIVE_MINS_MS);
+            fulfill();
         } else {
             logIt({
                 title: 'Price change not significant',
                 info: diffSinceLastTrade,
             });
             reactivate(THIRTY_MINS_MS);
+            fulfill();
         }
     }
 }
