@@ -72,7 +72,8 @@ type CoinOrder = {
     amount: number,
 };
 
-// prepareLastOrder takes a sorted(date) array of matches and returns a CoinOrder.
+// prepareLastOrder takes a sorted(date) array of matches and a specific coinCurrency
+// type (ETH-USD, LTC-USD, etc...) and returns a CoinOrder.
 function prepareLastOrder(
     matches: Array<Match>,
     coinCurrency: string
@@ -95,9 +96,7 @@ function prepareLastOrder(
     };
 }
 
-// getCoinOrder gets last order of the account used.
-// gets BTC only at the moment, ensures if an order is split it will find
-// all parts of that order and get the sum of all
+// getCoinOrder gets last order of the account in this run.
 async function getCoinOrder(
     account: Account,
     coin: string
