@@ -31,6 +31,7 @@ function reactivate(time: Millisecond) {
     });
 }
 
+// check returns a fulfillment of having checked.
 function check(coin: string) {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
@@ -49,6 +50,7 @@ function check(coin: string) {
     });
 }
 
+// init loops over defined coins and checks the state of that coin against past trades.
 async function init() {
     const coins = ['BTC', 'ETH', 'LTC'];
 
