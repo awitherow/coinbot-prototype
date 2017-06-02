@@ -67,50 +67,71 @@ function getAccountHistory(id: string): Promise<Array<Match> | Error> {
 }
 
 type CoinOrder = {
-    orderType: string,
-    matches: Array<Match>,
-    amount: number,
+    type: 'purchase' | 'sale',
+    howMuch: number,
+    cost: number,
 };
 
-// prepareLastOrder takes a sorted(date) array of matches and a specific coinCurrency
+// prepareRelevantOrder takes a sorted(date) array of matches and a specific coinCurrency
 // type (ETH-USD, LTC-USD, etc...) and returns a CoinOrder.
-function prepareLastOrder(
+function prepareRelevantOrder(
     matches: Array<Match>,
-    coinCurrency: string
+    currency: string,
+    balance: number
 ): CoinOrder {
-    const lastMatchesOfType = matches.filter(match => {
-        return match.details.product_id === coinCurrency;
-    })[0];
-    const lastMatchDetails = matches[0].details;
-    const orderType = lastMatchDetails.product_id;
-    matches = matches.filter(
-        ({ details }) =>
-            details.product_id === orderType &&
-            details.order_id === lastMatchDetails.order_id
-    );
+    console;
+    // psuedo new
+    // attempt = 0;
+    // relevantActions = []
+    // underThredshold = attempt <= balance+*0.10
+    // while this is less than continue to loop through matches
+    // - push order id into releventActions
+    // - check that attemptToMatchBalance does not exceed balance+*0.10
+    // - add to total of attemptToMatchBalance
+    // then get largest of all orders
+    // if another large purchase makes up 25% or more of the attempt
+    // average the cost of these purchases
+    // attempt to mitigate potential losses here
 
     return {
-        orderType,
-        matches,
-        amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
+        type: 'sale',
+        howMuch: 2,
+        cost: 50,
     };
 }
 
-// getCoinOrder gets last order of the account in this run.
-async function getCoinOrder(
+// getRelevantCoinOrder gets last order of the account in this run.
+async function getRelevantCoinOrder(
     accountID: string,
-    coinCurrency: string
+    coinCurrency: string,
+    coinBalance: number
 ): Promise<CoinOrder | Error> {
     const allMatches = await getAccountHistory(accountID);
     if (allMatches instanceof Error) {
         return allMatches;
     }
 
-    return prepareLastOrder(allMatches, coinCurrency);
+    console.log(
+        JSON.stringify(
+            getLastCurrencyMatches(allMatches, coinCurrency).slice(0, 10)
+        )
+    );
+
+    return prepareRelevantOrder(
+        getLastCurrencyMatches(allMatches, coinCurrency),
+        coinCurrency,
+        coinBalance
+    );
 }
+
+// filters matches for all COIN-CURRENCY matches.
+const getLastCurrencyMatches = (m, cc) =>
+    m.filter(match => {
+        return match.details.product_id === cc;
+    });
 
 module.exports = {
     getAccount,
-    getCoinOrder,
-    prepareLastOrder,
+    getRelevantCoinOrder,
+    prepareRelevantOrder,
 };
