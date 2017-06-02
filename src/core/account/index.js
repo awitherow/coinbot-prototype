@@ -101,18 +101,17 @@ function prepareLastOrder(
         amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
     };
 }
-
 // getLastCoinOrder gets last order of the account used.
 async function getLastCoinOrder(
-    account: Account,
-    coin: string
+    accountID: string,
+    coinCurrency: string
 ): Promise<CoinOrder | Error> {
-    const allMatches = await getRecentAccountHistory(account.id);
+    const allMatches = await getRecentAccountHistory(accountID);
     if (allMatches instanceof Error) {
         return allMatches;
     }
 
-    return prepareLastOrder(allMatches, `${coin}-${account.currency}`);
+    return prepareLastOrder(allMatches, coinCurrency);
 }
 
 module.exports = {
