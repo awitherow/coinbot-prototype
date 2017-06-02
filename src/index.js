@@ -94,14 +94,16 @@ async function execute(
         return new Error('Could not get account based on your currency');
     }
 
-    const lastCoinOrder = await getLastCoinOrder(myCurrency, coin);
+    const lastCoinOrder = await getLastCoinOrder(myCurrency.id, coin);
     if (lastCoinOrder instanceof Error) {
         return new Error('Could not fetch latest coin order');
     }
 
+    const coinCurrency = `${coin}-${currency}`;
+
     const { orderType, matches, amount } = lastCoinOrder;
     const [marketCoin, coinBalance] = await Promise.all([
-        getProductSnapshot(orderType),
+        getProductSnapshot(coinCurrency),
         getAccount(coin),
     ]);
 
