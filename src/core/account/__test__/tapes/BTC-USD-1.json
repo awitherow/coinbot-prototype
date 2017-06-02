@@ -1,0 +1,122 @@
+[
+    {
+        "created_at": "2017-04-22T12:18:51.944778Z",
+        "id": 124881563,
+        "amount": "-0.0245227315760000",
+        "balance": "28.3604254457287500",
+        "type": "fee",
+        "details": {
+            "order_id": "80334541-d8c5-46dd-8fbc-429e1c4a1180",
+            "trade_id": "14482841",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-22T12:18:51.944778Z",
+        "id": 124881562,
+        "amount": "9.8090926304000000",
+        "balance": "28.3849481773047500",
+        "type": "match",
+        "details": {
+            "order_id": "80334541-d8c5-46dd-8fbc-429e1c4a1180",
+            "trade_id": "14482841",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-22T12:18:51.91447Z",
+        "id": 124881557,
+        "amount": "-0.0465491250000000",
+        "balance": "18.5758555469047500",
+        "type": "fee",
+        "details": {
+            "order_id": "80334541-d8c5-46dd-8fbc-429e1c4a1180",
+            "trade_id": "14482840",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-22T12:18:51.91447Z",
+        "id": 124881556,
+        "amount": "18.6196500000000000",
+        "balance": "18.6224046719047500",
+        "type": "match",
+        "details": {
+            "order_id": "80334541-d8c5-46dd-8fbc-429e1c4a1180",
+            "trade_id": "14482840",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-20T06:38:15.318994Z",
+        "id": 123681373,
+        "amount": "-0.0393386565540000",
+        "balance": "0.0027546719047500",
+        "type": "fee",
+        "details": {
+            "order_id": "22b97d0f-6788-4077-a580-dbfaff2cca5c",
+            "trade_id": "14435579",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-20T06:38:15.318994Z",
+        "id": 123681371,
+        "amount": "-15.7354626216000000",
+        "balance": "0.0420933284587500",
+        "type": "match",
+        "details": {
+            "order_id": "22b97d0f-6788-4077-a580-dbfaff2cca5c",
+            "trade_id": "14435579",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-20T06:38:15.292561Z",
+        "id": 123681367,
+        "amount": "-0.0304867500000000",
+        "balance": "15.7775559500587500",
+        "type": "fee",
+        "details": {
+            "order_id": "22b97d0f-6788-4077-a580-dbfaff2cca5c",
+            "trade_id": "14435578",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-20T06:38:15.292561Z",
+        "id": 123681365,
+        "amount": "-12.1947000000000000",
+        "balance": "15.8080427000587500",
+        "type": "match",
+        "details": {
+            "order_id": "22b97d0f-6788-4077-a580-dbfaff2cca5c",
+            "trade_id": "14435578",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-18T13:29:52.882821Z",
+        "id": 122904450,
+        "amount": "-0.0263700165012500",
+        "balance": "28.0027427000587500",
+        "type": "fee",
+        "details": {
+            "order_id": "608cceb5-9b41-4316-845b-b1ea7200336b",
+            "trade_id": "14396394",
+            "product_id": "BTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-18T13:29:52.882821Z",
+        "id": 122904449,
+        "amount": "10.5480066005000000",
+        "balance": "28.0291127165600000",
+        "type": "match",
+        "details": {
+            "order_id": "608cceb5-9b41-4316-845b-b1ea7200336b",
+            "trade_id": "14396394",
+            "product_id": "BTC-USD"
+        }
+    }
+]
