@@ -11,10 +11,10 @@ const {
 } = require('./helpers/constants.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
 // account related functions
-const { getAccount, getCoinOrder } = require('./core/account');
+const { getAccount, getLastCoinOrder } = require('./core/account');
 
 // product related functions
-const { getSnapshot } = require('./core/product');
+const { getProductSnapshot } = require('./core/product');
 
 type Millisecond =
     | FIVE_MINS_MS
@@ -66,14 +66,14 @@ async function run(currency: string) {
         return new Error('Could not get account based on your currency');
     }
 
-    const coinOrder = await getCoinOrder(myCurrency.id);
-    if (coinOrder instanceof Error) {
+    const lastCoinOrder = await getLastCoinOrder(myCurrency.id);
+    if (lastCoinOrder instanceof Error) {
         return new Error('Could not fetch latest coin order');
     }
 
-    const { orderType, coin, matches, amount } = coinOrder;
+    const { orderType, coin, matches, amount } = lastCoinOrder;
     const [marketCoin, coinBalance] = await Promise.all([
-        getSnapshot(orderType),
+        getProductSnapshot(orderType),
         getAccount(coin),
     ]);
 

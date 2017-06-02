@@ -1,11 +1,11 @@
 // @flow
 const { pubClient } = require('../client');
 
-// getSnapshot returns a Promise that checks the products current status
+// getProductSnapshot returns a Promise that checks the products current status
 // this seems to be set to BTC automatically.
-function getSnapshot(cc: string): Promise<number | Error> {
+function getProductSnapshot(currency: string): Promise<number | Error> {
     return new Promise((resolve, reject) => {
-        let client = pubClient(cc);
+        let client = pubClient(currency);
         return client.getProductTicker((err, res, data) => {
             if (err) {
                 return reject(new Error(err));
@@ -19,5 +19,5 @@ function getSnapshot(cc: string): Promise<number | Error> {
 }
 
 module.exports = {
-    getSnapshot,
+    getProductSnapshot,
 };
