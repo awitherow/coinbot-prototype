@@ -1,0 +1,122 @@
+[
+    {
+        "created_at": "2017-05-24T19:14:42.973Z",
+        "id": 154018950,
+        "amount": "-0.0525450000000000",
+        "balance": "82.6839845057665500",
+        "type": "fee",
+        "details": {
+            "order_id": "9cebddbe-4f5e-465d-aa9d-ef6d623b5862",
+            "trade_id": "1297112",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T19:14:42.973Z",
+        "id": 154018949,
+        "amount": "17.5150000000000000",
+        "balance": "82.7365295057665500",
+        "type": "match",
+        "details": {
+            "order_id": "9cebddbe-4f5e-465d-aa9d-ef6d623b5862",
+            "trade_id": "1297112",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T19:14:34.284574Z",
+        "id": 154018500,
+        "amount": "-0.0525300000000000",
+        "balance": "65.2215295057665500",
+        "type": "fee",
+        "details": {
+            "order_id": "c628859d-42ad-4d6c-b98a-305b8b817fc5",
+            "trade_id": "1297111",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T19:14:34.284574Z",
+        "id": 154018499,
+        "amount": "17.5100000000000000",
+        "balance": "65.2740595057665500",
+        "type": "match",
+        "details": {
+            "order_id": "c628859d-42ad-4d6c-b98a-305b8b817fc5",
+            "trade_id": "1297111",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T11:25:21.702042Z",
+        "id": 153538805,
+        "amount": "-0.1053360000000000",
+        "balance": "47.7640595057665500",
+        "type": "fee",
+        "details": {
+            "order_id": "72a43329-133a-4f82-869c-8b45c30e610a",
+            "trade_id": "1277560",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T11:25:21.702042Z",
+        "id": 153538804,
+        "amount": "35.1120000000000000",
+        "balance": "47.8693955057665500",
+        "type": "match",
+        "details": {
+            "order_id": "72a43329-133a-4f82-869c-8b45c30e610a",
+            "trade_id": "1277560",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T11:25:21.673978Z",
+        "id": 153538799,
+        "amount": "-0.0095910000000000",
+        "balance": "12.7573955057665500",
+        "type": "fee",
+        "details": {
+            "order_id": "72a43329-133a-4f82-869c-8b45c30e610a",
+            "trade_id": "1277559",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T11:25:21.673978Z",
+        "id": 153538798,
+        "amount": "3.1970000000000000",
+        "balance": "12.7669865057665500",
+        "type": "match",
+        "details": {
+            "order_id": "72a43329-133a-4f82-869c-8b45c30e610a",
+            "trade_id": "1277559",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T11:25:21.635864Z",
+        "id": 153538793,
+        "amount": "-0.0095910000000000",
+        "balance": "9.5699865057665500",
+        "type": "fee",
+        "details": {
+            "order_id": "72a43329-133a-4f82-869c-8b45c30e610a",
+            "trade_id": "1277558",
+            "product_id": "LTC-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-24T11:25:21.635864Z",
+        "id": 153538792,
+        "amount": "3.1970000000000000",
+        "balance": "9.5795775057665500",
+        "type": "match",
+        "details": {
+            "order_id": "72a43329-133a-4f82-869c-8b45c30e610a",
+            "trade_id": "1277558",
+            "product_id": "LTC-USD"
+        }
+    }
+]
