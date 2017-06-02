@@ -11,7 +11,7 @@ const {
 } = require('./helpers/constants.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier/');
 // account related functions
-const { getAccount, getCoinOrder } = require('./core/account');
+const { getAccount, getRelevantCoinOrder } = require('./core/account');
 
 // product related functions
 const { getSnapshot } = require('./core/product');
@@ -87,131 +87,26 @@ async function execute(
         info: moment().format('MMMM Do YYYY, h:mm:ss a'),
     });
 
-    // get coin that is being used.
-    const myCurrency = await getAccount(currency);
-    if (myCurrency instanceof Error) {
+    // get account balances for current coin and cash accounts.
+    const coinBalance = await getAccount(coin);
+    const cashAccount = await getAccount(currency);
+    if (cashAccount instanceof Error || coinBalance instanceof Error) {
         return new Error('Could not get account based on your currency');
     }
 
-    const coinCurrency = `${coin}-${myCurrency.currency}`;
+    // check the market coin price for right now.
+    const marketCoin = await getSnapshot(`${coin}-${cashAccount.currency}`);
 
-    const coinOrder = await getCoinOrder(myCurrency.id, coinCurrency);
-    if (coinOrder instanceof Error) {
-        return new Error('Could not fetch latest coin order');
-    }
+    // get a smart coin order, depending on trading styles.
+    const coinOrder = await getRelevantCoinOrder(
+        cashAccount.id,
+        `${coin}-${cashAccount.currency}`,
+        parseFloat(Number(coinBalance.balance).toFixed(3))
+    );
 
-    const { orderType, matches, amount } = coinOrder;
-    const [marketCoin, coinBalance] = await Promise.all([
-        getSnapshot(coinCurrency),
-        getAccount(coin),
-    ]);
-
-    if (marketCoin instanceof Error || coinBalance instanceof Error) {
+    if (marketCoin instanceof Error || coinOrder instanceof Error) {
         return new Error('Could not get market coin information');
     }
 
-    // coin -> currency
-    if (parseFloat(Number(coinBalance.balance).toFixed(3)) > 0) {
-        logIt({
-            title: `${coin} balance`,
-            info: parseFloat(coinBalance.balance),
-        });
-
-        // last match should be a deficit of the last transfer you made
-        // aka, coin -> currency trade area should have deficit of currency, as we
-        // last purchased coin with currency.
-        const priceAtTimeOfSale = Math.abs(amount) / coinBalance.balance;
-        const diffSinceLastTrade = marketCoin - priceAtTimeOfSale;
-
-        if (diffSinceLastTrade < -10) {
-            reactivate(coin, ONE_HOUR_MS);
-            logIt({
-                form: 'error',
-                title: 'Keep on the look out for potential further investment, Price drop',
-                info: diffSinceLastTrade,
-            });
-            fulfill();
-        } else if (diffSinceLastTrade > 10) {
-            reactivate(coin, FIFTEEN_MINS_MS);
-            logIt({
-                form: 'notice',
-                title: `${coin} price rising, checking more frequently`,
-                info: diffSinceLastTrade,
-            });
-            fulfill();
-        } else if (diffSinceLastTrade > 20) {
-            if (twilioActivated) {
-                notifyUserViaText(
-                    `SELL ${coin}! Significant difference: ${diffSinceLastTrade}.`
-                );
-            } else {
-                logIt({
-                    title: 'Price difference signficant, buy!',
-                    info: diffSinceLastTrade,
-                });
-            }
-            reactivate(coin, FIVE_MINS_MS);
-            fulfill();
-        } else {
-            logIt({
-                title: 'Price change not significant',
-                info: diffSinceLastTrade,
-            });
-            reactivate(coin, THIRTY_MINS_MS);
-            fulfill();
-        }
-    }
-
-    // currency -> coin
-    if (parseFloat(myCurrency.balance) > 1) {
-        logIt({
-            title: `${currency} Balance`,
-            info: parseFloat(myCurrency.balance),
-        });
-        console.log(`${currency} -> ${coin}`);
-
-        const priceAtTimeOfSale =
-            myCurrency.balance / Math.abs(parseFloat(amount));
-        const diffSinceLastTrade = marketCoin - priceAtTimeOfSale;
-
-        if (diffSinceLastTrade > 10) {
-            reactivate(coin, ONE_HOUR_MS);
-            logIt({
-                form: 'error',
-                title: `You bought ${coin} early. Has risen`,
-                info: diffSinceLastTrade,
-            });
-            fulfill();
-        } else if (diffSinceLastTrade < -10) {
-            reactivate(coin, FIFTEEN_MINS_MS);
-            logIt({
-                form: 'notice',
-                title: `${coin} is rising, checking more often now.`,
-                info: diffSinceLastTrade,
-            });
-            fulfill();
-        } else if (diffSinceLastTrade < -20) {
-            if (twilioActivated) {
-                notifyUserViaText(
-                    `Buy ${coin}! Significant difference: ${diffSinceLastTrade}.`
-                );
-            } else {
-                logIt({
-                    title: 'Price difference signficant, sell!',
-                    info: diffSinceLastTrade,
-                });
-            }
-            reactivate(coin, FIVE_MINS_MS);
-            fulfill();
-        } else {
-            logIt({
-                title: 'Price change not significant',
-                info: diffSinceLastTrade,
-            });
-            reactivate(coin, THIRTY_MINS_MS);
-            fulfill();
-        }
-    }
-
-    reject('Could not trade coin due to lack of sufficient funding.');
+    return fulfill();
 }
