@@ -7,9 +7,9 @@ const { stdNum } = require('./helpers/math.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier');
 const { FIFTEEN_MINS_MS } = require('./helpers/constants.js');
 
-const { getAccount, getLastCoinOrder } = require('./core/account');
+const { getAccount } = require('./core/account');
 const { getProductSnapshot, get24HourStats } = require('./core/product');
-const { shouldPurchase } = require('./core/advisor');
+const { shouldPurchase, shouldSell } = require('./core/advisor');
 
 type Millisecond = number;
 function reactivate(coin: string, time: Millisecond = FIFTEEN_MINS_MS) {
@@ -103,12 +103,6 @@ async function execute(
         return reject('Could not get account based on your currency');
     }
 
-    // get the last coin order of coin and currency combo.
-    const lastCoinOrder = await getLastCoinOrder(myCurrency.id, coinCurrency);
-    if (lastCoinOrder instanceof Error) {
-        return reject('Could not fetch latest coin order');
-    }
-
     // Get account coin balance.
     const coinBalance = await getAccount(coin);
     if (coinBalance instanceof Error) {
@@ -136,15 +130,35 @@ async function execute(
 
     // decision tree
     //  1) no coins, no money (reject)
-    //  2) both coins, and money to spend ()
-    //  3) coins, no money to spend (sell)
-    //  4) no coins, money to spend (purchase)
+    //  2) coins to sell
+    //  3) money to spend
     // --------------------------
 
     const decisions = [];
 
-    // 4) no coins, money to spend (purchase)
-    if (parsedCoinBalance === 0 && parsedCurrencyBalance > 0) {
+    // 1) no coins, no money (reject)
+    if (parsedCoinBalance === 0 && parsedCurrencyBalance === 0) {
+        return reject('Not enough trading money');
+    }
+
+    // 2) coins to sell
+    if (parsedCoinBalance > 0) {
+        const sellAdvice = shouldSell(coin, marketCoin, stats.open);
+        const { advice, message } = sellAdvice;
+
+        if (twilioActivated && advice && message) {
+            notifyUserViaText(message);
+        }
+
+        decisions.push({
+            id: 'sellAdvice',
+            advice,
+            message,
+        });
+    }
+
+    // 3) money to spend
+    if (parsedCurrencyBalance > 0) {
         const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
         const { advice, message } = purchaseAdvice;
 
@@ -157,9 +171,6 @@ async function execute(
             advice,
             message,
         });
-    }
-
-    if (parsedCoinBalance > 0) {
     }
 
     return fulfill(decisions);
