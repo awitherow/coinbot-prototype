@@ -4,38 +4,26 @@
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
 const { stdNum } = require('./helpers/math.js');
-const {
-    FIVE_MINS_MS,
-    FIFTEEN_MINS_MS,
-    THIRTY_MINS_MS,
-    ONE_HOUR_MS,
-} = require('./helpers/constants.js');
-const { twilioActivated, notifyUserViaText } = require('./notifier/');
-// account related functions
-const { getAccount, getLastCoinOrder } = require('./core/account');
+const { twilioActivated, notifyUserViaText } = require('./notifier');
+const { FIFTEEN_MINS_MS } = require('./helpers/constants.js');
 
-// product related functions
-const { getProductSnapshot } = require('./core/product');
+const { getAccount } = require('./core/account');
+const { getProductSnapshot, get24HourStats } = require('./core/product');
+const { shouldPurchase, shouldSell } = require('./core/advisor');
 
-type Millisecond =
-    | FIVE_MINS_MS
-    | FIFTEEN_MINS_MS
-    | THIRTY_MINS_MS
-    | ONE_HOUR_MS;
+const DEFAULT_COINS = ['BTC', 'ETH', 'LTC'];
 
-function reactivate(coin: string, time: Millisecond) {
-    setInterval(() => check(coin), time);
-    logIt({
-        title: 'checking again',
-        info: moment().add(time, 'milliseconds').fromNow(),
-    });
-}
+type Decisions = Array<Decision>;
+type Decision = {
+    id: string,
+    advice: boolean,
+    message: string,
+};
 
 // check returns a fulfillment of having checked.
-function check(coin: string) {
+function check(coin: string): Promise<Decisions | Error> | Error {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
-
     if (!currency) {
         return Error('Please set your CURRENCY env');
     }
@@ -44,175 +32,158 @@ function check(coin: string) {
         try {
             execute(coin, currency, { fulfill, reject });
         } catch (e) {
-            reactivate(coin, FIFTEEN_MINS_MS);
             Error(e);
         }
     });
 }
 
-// init loops over defined coins and checks the state of that coin against past trades.
-async function init() {
-    const coins = ['BTC', 'ETH', 'LTC'];
-
-    for (let i = 0; i <= coins.length - 1; i++) {
+// run loops over defined coins and checks the state of that coin against past trades.
+async function run() {
+    // TODO: check coin currency here and automate which coins to get.
+    let decisions = [];
+    for (let i = 0; i <= DEFAULT_COINS.length - 1; i++) {
         try {
-            await check(coins[i]);
+            decisions = await check(DEFAULT_COINS[i]);
         } catch (e) {
-            await reactivate(coins[i], FIFTEEN_MINS_MS);
             logIt({
                 form: 'error',
-                title: 'failed to run',
-                info: e,
+                message: e,
             });
+            break;
+        }
+
+        if (Array.isArray(decisions)) {
+            decisions.map(({ id, advice, message }) =>
+                logIt({
+                    form: 'notice',
+                    message,
+                })
+            );
         }
         console.log('-----------');
     }
+    console.log('>>>>>>>>>>>>');
+    logIt({
+        form: 'notice',
+        message: 'RUN COMPLETE >>>',
+    });
+    logIt({
+        message: `checking again in ${moment()
+            .add(FIFTEEN_MINS_MS, 'milliseconds')
+            .fromNow()}`,
+    });
+    console.log('>>>>>>>>>>>>');
 }
 
-init();
+run();
+setInterval(function() {
+    run();
+}, FIFTEEN_MINS_MS);
 
 type PromiseMethods = {
     fulfill: Function,
     reject: Function,
 };
 
-// also upon completion, it will be run on a setInterval determined on the
-// decide() function that will be used later.
+// execute gathers all relevant information on the trades you are making
+// and attempts to provide a recommendation to the user on what to do.
 async function execute(
     coin: string,
     currency: string,
     { fulfill, reject }: PromiseMethods
 ) {
     logIt({
-        title: `running ${coin} at`,
-        info: moment().format('MMMM Do YYYY, h:mm:ss a'),
+        message: `running ${coin} at ${moment().format('MMMM Do YYYY, h:mm:ss a')}`,
     });
+
+    // set standard 'COIN-CURRENCY' trade symbol (ex: BTC-USD)
+    const coinCurrency = `${coin}-${currency}`;
 
     // get coin that is being used.
     const myCurrency = await getAccount(currency);
     if (myCurrency instanceof Error) {
-        return new Error('Could not get account based on your currency');
+        return reject('Could not get account based on your currency');
     }
 
-    const lastCoinOrder = await getLastCoinOrder(myCurrency.id, coin);
-    if (lastCoinOrder instanceof Error) {
-        return new Error('Could not fetch latest coin order');
+    // Get account coin balance.
+    const coinBalance = await getAccount(coin);
+    if (coinBalance instanceof Error) {
+        return reject('Could not get coin balance');
     }
 
-    const coinCurrency = `${coin}-${currency}`;
-
-    const { matches, amount } = lastCoinOrder;
-    const [marketCoin, coinBalance] = await Promise.all([
-        getProductSnapshot(coinCurrency),
-        getAccount(coin),
-    ]);
-
-    if (marketCoin instanceof Error || coinBalance instanceof Error) {
-        return new Error('Could not get market coin information');
+    // Get current market price of coin
+    const marketCoin = await getProductSnapshot(coinCurrency);
+    if (marketCoin instanceof Error) {
+        return reject('Could not get market coin information');
     }
 
-    // coin -> currency
-    if (stdNum(coinBalance.balance) > 0) {
-        logIt({
-            title: `${coin} balance`,
-            info: parseFloat(coinBalance.balance),
-        });
+    const stats = await get24HourStats(coinCurrency);
+    if (stats instanceof Error) {
+        return reject('Could not get 24 hour stats');
+    }
 
-        // last match should be a deficit of the last transfer you made
-        // aka, coin -> currency trade area should have deficit of currency, as we
-        // last purchased coin with currency.
-        const priceAtTimeOfSale = Math.abs(amount) / coinBalance.balance;
-        const diffSinceLastTrade = marketCoin - priceAtTimeOfSale;
+    // parse coin and currency balance to be usable numbers.
+    const parsedCoinBalance = parseFloat(
+        Number(coinBalance.balance).toFixed(3)
+    );
+    const parsedCurrencyBalance = parseFloat(
+        Number(myCurrency.balance).toFixed(3)
+    );
 
-        if (diffSinceLastTrade < -10) {
-            reactivate(coin, ONE_HOUR_MS);
-            logIt({
-                form: 'error',
-                title: 'Keep on the look out for potential further investment, Price drop',
-                info: diffSinceLastTrade,
-            });
-            return fulfill();
-        } else if (diffSinceLastTrade > 10) {
-            reactivate(coin, FIFTEEN_MINS_MS);
-            logIt({
-                form: 'notice',
-                title: `${coin} price rising, checking more frequently`,
-                info: diffSinceLastTrade,
-            });
-            return fulfill();
-        } else if (diffSinceLastTrade > 20) {
-            if (twilioActivated) {
-                notifyUserViaText(
-                    `SELL ${coin}! Significant difference: ${diffSinceLastTrade}.`
-                );
-            } else {
-                logIt({
-                    title: 'Price difference signficant, buy!',
-                    info: diffSinceLastTrade,
-                });
-            }
-            reactivate(coin, FIVE_MINS_MS);
-            return fulfill();
-        } else {
-            logIt({
-                title: 'Price change not significant',
-                info: diffSinceLastTrade,
-            });
-            reactivate(coin, THIRTY_MINS_MS);
-            return fulfill();
+    // decision tree
+    //  1) no coins, no money (reject)
+    //  2) coins to sell
+    //  3) money to spend
+    // --------------------------
+
+    const decisions = [];
+
+    // 1) no coins, no money (reject)
+    if (parsedCoinBalance === 0 && parsedCurrencyBalance === 0) {
+        return reject('Not enough trading money');
+    }
+
+    // 2) coins to sell
+    if (parsedCoinBalance > 0) {
+        const sellAdvice = shouldSell(coin, marketCoin, stats.open);
+        const { advice, message } = sellAdvice;
+
+        if (
+            twilioActivated &&
+            advice &&
+            message &&
+            !Boolean(process.env.TESTING)
+        ) {
+            notifyUserViaText(message);
         }
-    }
 
-    // currency -> coin
-    if (parseFloat(myCurrency.balance) > 1) {
-        logIt({
-            title: `${currency} Balance`,
-            info: parseFloat(myCurrency.balance),
+        decisions.push({
+            id: 'sellAdvice',
+            advice,
+            message,
         });
-        console.log(`${currency} -> ${coin}`);
-
-        const priceAtTimeOfSale =
-            myCurrency.balance / Math.abs(parseFloat(amount));
-        const diffSinceLastTrade = marketCoin - priceAtTimeOfSale;
-
-        if (diffSinceLastTrade > 10) {
-            reactivate(coin, ONE_HOUR_MS);
-            logIt({
-                form: 'error',
-                title: `You bought ${coin} early. Has risen`,
-                info: diffSinceLastTrade,
-            });
-            return fulfill();
-        } else if (diffSinceLastTrade < -10) {
-            reactivate(coin, FIFTEEN_MINS_MS);
-            logIt({
-                form: 'notice',
-                title: `${coin} is rising, checking more often now.`,
-                info: diffSinceLastTrade,
-            });
-            return fulfill();
-        } else if (diffSinceLastTrade < -20) {
-            if (twilioActivated) {
-                notifyUserViaText(
-                    `Buy ${coin}! Significant difference: ${diffSinceLastTrade}.`
-                );
-            } else {
-                logIt({
-                    title: 'Price difference signficant, sell!',
-                    info: diffSinceLastTrade,
-                });
-            }
-            reactivate(coin, FIVE_MINS_MS);
-            return fulfill();
-        } else {
-            logIt({
-                title: 'Price change not significant',
-                info: diffSinceLastTrade,
-            });
-            reactivate(coin, THIRTY_MINS_MS);
-            return fulfill();
-        }
     }
 
-    return reject('Could not trade coin due to lack of sufficient funding.');
+    // 3) money to spend
+    if (parsedCurrencyBalance > 0) {
+        const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
+        const { advice, message } = purchaseAdvice;
+
+        if (
+            twilioActivated &&
+            advice &&
+            message &&
+            !Boolean(process.env.TESTING)
+        ) {
+            notifyUserViaText(message);
+        }
+
+        decisions.push({
+            id: 'purchaseAdvice',
+            advice,
+            message,
+        });
+    }
+
+    return fulfill(decisions);
 }

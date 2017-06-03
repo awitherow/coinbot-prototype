@@ -5,7 +5,7 @@ function roundTo(x: number, to: number): number {
 }
 
 function stdNum(x: number): number {
-    return roundTo(x, 3);
+    return roundTo(x, 5);
 }
 
 module.exports = {

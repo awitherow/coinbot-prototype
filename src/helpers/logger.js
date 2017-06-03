@@ -4,33 +4,46 @@ const log = console.log;
 const chalk = require('chalk');
 
 type Log = {
-    form?: 'error' | 'log' | 'notice',
-    title: string,
-    info: any,
+    form?: 'error' | 'log' | 'notice' | 'notice-positive' | 'notice-negative',
+    message: any,
 };
 
-module.exports = ({ form, title, info }: Log) => {
+module.exports = ({ form, message }: Log) => {
     switch (form) {
         case 'error':
-            logError({ title, info });
+            logError({ message });
             break;
         case 'notice':
-            logNotice({ title, info });
+            logNotice({ message });
+            break;
+        case 'notice-positive':
+            logPositiveNotice({ message });
+            break;
+        case 'notice-negative':
+            logNegativeNoticie({ message });
             break;
         default:
-            logNormal({ title, info });
+            logNormal({ message });
             break;
     }
 };
 
-function logNotice({ title, info }) {
-    log(chalk.bgWhite.green(`${title}: ${info}`));
+function logNotice({ message }) {
+    log(chalk.bgWhite.green(message));
 }
 
-function logError({ title, info }) {
-    log(chalk.bgYellow.black(`${title}: ${info}`));
+function logPositiveNotice({ message }) {
+    log(chalk.bgWhite.cyan(message));
 }
 
-function logNormal({ title, info }) {
-    log(chalk.inverse(`${title}: ${info}`));
+function logNegativeNoticie({ message }) {
+    log(chalk.bgWhite.magenta(message));
+}
+
+function logError({ message }) {
+    log(chalk.bgYellow.black(message));
+}
+
+function logNormal({ message }) {
+    log(chalk.inverse(message));
 }
