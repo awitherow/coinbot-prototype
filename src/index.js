@@ -11,15 +11,7 @@ const { getAccount } = require('./core/account');
 const { getProductSnapshot, get24HourStats } = require('./core/product');
 const { shouldPurchase, shouldSell } = require('./core/advisor');
 
-type Millisecond = number;
-function reactivate(coin: string, time: Millisecond = FIFTEEN_MINS_MS) {
-    setInterval(() => check(coin), time);
-    logIt({
-        message: `checking again in ${moment()
-            .add(time, 'milliseconds')
-            .fromNow()}`,
-    });
-}
+const DEFAULT_COINS = ['BTC', 'ETH', 'LTC'];
 
 type Decisions = Array<Decision>;
 type Decision = {
@@ -40,20 +32,18 @@ function check(coin: string): Promise<Decisions | Error> | Error {
         try {
             execute(coin, currency, { fulfill, reject });
         } catch (e) {
-            reactivate(coin);
             Error(e);
         }
     });
 }
 
-// init loops over defined coins and checks the state of that coin against past trades.
-async function init() {
+// run loops over defined coins and checks the state of that coin against past trades.
+async function run() {
     // TODO: check coin currency here and automate which coins to get.
-    const coins = ['BTC', 'ETH', 'LTC'];
     let decisions = [];
-    for (let i = 0; i <= coins.length - 1; i++) {
+    for (let i = 0; i <= DEFAULT_COINS.length - 1; i++) {
         try {
-            decisions = await check(coins[i]);
+            decisions = await check(DEFAULT_COINS[i]);
         } catch (e) {
             logIt({
                 form: 'error',
@@ -70,13 +60,25 @@ async function init() {
                 })
             );
         }
-
-        await reactivate(coins[i]);
         console.log('-----------');
     }
+    console.log('>>>>>>>>>>>>');
+    logIt({
+        form: 'notice',
+        message: 'RUN COMPLETE >>>',
+    });
+    logIt({
+        message: `checking again in ${moment()
+            .add(FIFTEEN_MINS_MS, 'milliseconds')
+            .fromNow()}`,
+    });
+    console.log('>>>>>>>>>>>>');
 }
 
-init();
+run();
+setInterval(function() {
+    run();
+}, FIFTEEN_MINS_MS);
 
 type PromiseMethods = {
     fulfill: Function,
@@ -146,7 +148,12 @@ async function execute(
         const sellAdvice = shouldSell(coin, marketCoin, stats.open);
         const { advice, message } = sellAdvice;
 
-        if (twilioActivated && advice && message) {
+        if (
+            twilioActivated &&
+            advice &&
+            message &&
+            !Boolean(process.env.TESTING)
+        ) {
             notifyUserViaText(message);
         }
 
@@ -162,7 +169,12 @@ async function execute(
         const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
         const { advice, message } = purchaseAdvice;
 
-        if (twilioActivated && advice && message) {
+        if (
+            twilioActivated &&
+            advice &&
+            message &&
+            !Boolean(process.env.TESTING)
+        ) {
             notifyUserViaText(message);
         }
 
