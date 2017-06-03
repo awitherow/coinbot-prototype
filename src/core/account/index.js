@@ -60,10 +60,7 @@ function getRecentAccountHistory(
                     return reject(new Error(data.message));
                 }
                 return resolve(
-                    // transfer is ignored as we do not want to track transfers
-                    // from coinbase. they will simply appear as new budget
-                    // to be used by the app. slicing 0-25 for later performance
-                    // and liklihood my order will not get split that bad.
+                    // transfer is ignored as we do not want to track transfers from coinbase, yet.
                     data.filter(trade => trade.type !== 'transfer')
                 );
             }
