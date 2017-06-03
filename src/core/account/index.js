@@ -6,6 +6,7 @@ const logIt = require('../../helpers/logger');
 type Account = {
     'id': string,
     'balance': number,
+    'currency': string,
 };
 
 // getAccount is passed a type of account, by string.
@@ -24,6 +25,7 @@ function getAccount(currency: string): Promise<Account | Error> {
             return resolve({
                 id: acct.id,
                 balance: parseFloat(acct.balance),
+                currency: acct.currency,
             });
         })
     );
@@ -44,36 +46,47 @@ type Transaction = {
 
 // getRecentAccountHistory returns the latest 25 account transactions, without transfers.
 // https://docs.gdax.com/#get-account-history
-function getRecentAccountHistory(currencyId: string): Promise<Array<Transaction> | Error> {
+function getRecentAccountHistory(
+    currencyId: string
+): Promise<Array<Transaction> | Error> {
     return new Promise((resolve, reject) =>
-        authClient.getAccountHistory(currencyId, (err, res, data: Array<Transaction>) => {
-            if (err) {
-                return reject(new Error(err));
+        authClient.getAccountHistory(
+            currencyId,
+            (err, res, data: Array<Transaction>) => {
+                if (err) {
+                    return reject(new Error(err));
+                }
+                if (data.message) {
+                    return reject(new Error(data.message));
+                }
+                return resolve(
+                    // transfer is ignored as we do not want to track transfers
+                    // from coinbase. they will simply appear as new budget
+                    // to be used by the app. slicing 0-25 for later performance
+                    // and liklihood my order will not get split that bad.
+                    data.filter(trade => trade.type !== 'transfer')
+                );
             }
-            if (data.message) {
-                return reject(new Error(data.message));
-            }
-            return resolve(
-                // transfer is ignored as we do not want to track transfers
-                // from coinbase. they will simply appear as new budget
-                // to be used by the app. slicing 0-25 for later performance
-                // and liklihood my order will not get split that bad.
-                data.filter(trade => trade.type !== 'transfer').slice(0, 25)
-            );
-        })
+        )
     );
 }
 
 // A CoinOrder is a collection of transactions related to one order.
 type CoinOrder = {
     orderType: string,
-    coin: string,
     matches: Array<Transaction>,
     amount: number,
 };
 
-// prepareLastOrder takes a sorted(date) array of matches and returns a CoinOrder.
-function prepareLastOrder(matches: Array<Transaction>): CoinOrder {
+// prepareLastOrder takes a sorted(date) array of matches and a specific coinCurrency
+// type (ETH-USD, LTC-USD, etc...) and returns a CoinOrder.
+function prepareLastOrder(
+    matches: Array<Transaction>,
+    coinCurrency: string
+): CoinOrder {
+    const lastMatchesOfType = matches.filter(match => {
+        return match.details.product_id === coinCurrency;
+    })[0];
     const lastMatchDetails = matches[0].details;
     const orderType = lastMatchDetails.product_id;
     matches = matches.filter(
@@ -84,22 +97,21 @@ function prepareLastOrder(matches: Array<Transaction>): CoinOrder {
 
     return {
         orderType,
-        coin: orderType.split('-')[0],
         matches,
         amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
     };
 }
-
 // getLastCoinOrder gets last order of the account used.
-// gets BTC only at the moment, ensures if an order is split it will find
-// all parts of that order and get the sum of all
-async function getLastCoinOrder(currencyId: string): Promise<CoinOrder | Error> {
-    const allMatches = await getRecentAccountHistory(currencyId);
+async function getLastCoinOrder(
+    accountID: string,
+    coinCurrency: string
+): Promise<CoinOrder | Error> {
+    const allMatches = await getRecentAccountHistory(accountID);
     if (allMatches instanceof Error) {
         return allMatches;
     }
 
-    return prepareLastOrder(allMatches);
+    return prepareLastOrder(allMatches, coinCurrency);
 }
 
 module.exports = {

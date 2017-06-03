@@ -1,0 +1,98 @@
+[
+    {
+        "created_at": "2017-06-01T10:11:53.123766Z",
+        "id": 165316868,
+        "amount": "-0.3013090729836000",
+        "balance": "100.1390334630037500",
+        "type": "fee",
+        "details": {
+            "order_id": "1f433b8b-b418-42b2-915a-1a906ffc551d",
+            "trade_id": "5141895",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-06-01T10:11:53.123766Z",
+        "id": 165316867,
+        "amount": "100.4363576612000000",
+        "balance": "100.4403425359873500",
+        "type": "match",
+        "details": {
+            "order_id": "1f433b8b-b418-42b2-915a-1a906ffc551d",
+            "trade_id": "5141895",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-25T20:51:08.785112Z",
+        "id": 155973317,
+        "amount": "-0.0539621358192000",
+        "balance": "0.0039848747873500",
+        "type": "fee",
+        "details": {
+            "order_id": "b0a3b2da-e2cd-4841-b969-eb2e69a7c7ba",
+            "trade_id": "4626957",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-25T20:51:08.785112Z",
+        "id": 155973315,
+        "amount": "-17.9873786064000000",
+        "balance": "0.0579470106065500",
+        "type": "match",
+        "details": {
+            "order_id": "b0a3b2da-e2cd-4841-b969-eb2e69a7c7ba",
+            "trade_id": "4626957",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-25T20:51:08.754337Z",
+        "id": 155973311,
+        "amount": "-0.1933359687600000",
+        "balance": "18.0453256170065500",
+        "type": "fee",
+        "details": {
+            "order_id": "b0a3b2da-e2cd-4841-b969-eb2e69a7c7ba",
+            "trade_id": "4626956",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-05-25T20:51:08.754337Z",
+        "id": 155973309,
+        "amount": "-64.4453229200000000",
+        "balance": "18.2386615857665500",
+        "type": "match",
+        "details": {
+            "order_id": "b0a3b2da-e2cd-4841-b969-eb2e69a7c7ba",
+            "trade_id": "4626956",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-09T18:51:30.873031Z",
+        "id": 119466506,
+        "amount": "-0.0705882346680000",
+        "balance": "0.0013611945037500",
+        "type": "fee",
+        "details": {
+            "order_id": "c7fb08ae-79cf-4f6d-af90-f06e2544ef33",
+            "trade_id": "2574326",
+            "product_id": "ETH-USD"
+        }
+    },
+    {
+        "created_at": "2017-04-09T18:51:30.873031Z",
+        "id": 119466504,
+        "amount": "-23.5294115560000000",
+        "balance": "0.0719494291717500",
+        "type": "match",
+        "details": {
+            "order_id": "c7fb08ae-79cf-4f6d-af90-f06e2544ef33",
+            "trade_id": "2574326",
+            "product_id": "ETH-USD"
+        }
+    }
+]
