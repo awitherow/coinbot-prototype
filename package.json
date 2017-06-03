@@ -1,13 +1,14 @@
 {
   "name": "coinbot",
-  "version": "0.0.1",
+  "version": "0.2.1",
   "description": "coinbase recommendation bot",
   "main": "src/index.js",
   "scripts": {
     "go": "node index.js",
-    "dev": "nodemon index.js",
+    "dev": "TESTING=true nodemon index.js",
     "test": "npm run flow && npm run jest",
     "jest": "jest",
+    "jw": "TESTING=true node_modules/.bin/jest --watch",
     "flow": "flow --show-all-errors"
   },
   "jest": {

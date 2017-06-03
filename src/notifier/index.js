@@ -11,6 +11,7 @@ function notifyUserViaText(notification) {
         if (!twilioActivated) {
             return reject('You need to have twilio activated to get this far');
         }
+
         client.messages.create(
             {
                 to: YOUR_PHONE,
