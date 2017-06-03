@@ -101,7 +101,7 @@ async function execute(
 
     const coinCurrency = `${coin}-${currency}`;
 
-    const { orderType, matches, amount } = lastCoinOrder;
+    const { matches, amount } = lastCoinOrder;
     const [marketCoin, coinBalance] = await Promise.all([
         getProductSnapshot(coinCurrency),
         getAccount(coin),
