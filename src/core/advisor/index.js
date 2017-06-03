@@ -1,17 +1,29 @@
 const { stdNum } = require('../../helpers/math');
 
+const PARAMS_MISSING = {
+    advice: false,
+    message: 'missing parameters',
+};
+
+const THRESHOLD = 5;
+
+function getChangeInfo(market, opening) {
+    const changeInCoinUntilNow = market - opening;
+    return {
+        changeInCoinUntilNow,
+        changePercent: stdNum(changeInCoinUntilNow / market * 100),
+    };
+}
+
 function shouldPurchase(coin, marketCoin, openingPrice) {
     if (!coin || !marketCoin || !openingPrice) {
-        return {
-            advice: false,
-            message: 'missing parameters',
-        };
+        return PARAMS_MISSING;
     }
 
-    const changeInCoinUntilNow = marketCoin - openingPrice;
-    const changePercent = stdNum(changeInCoinUntilNow / marketCoin * 100);
-
-    const percentageDropWatch = -5;
+    const { changeInCoinUntilNow, changePercent } = getChangeInfo(
+        marketCoin,
+        openingPrice
+    );
 
     // price has increased X percent
     if (changePercent > 0) {
@@ -22,7 +34,7 @@ function shouldPurchase(coin, marketCoin, openingPrice) {
     }
 
     // price has decreased 5 percent or more
-    if (changePercent <= percentageDropWatch) {
+    if (changePercent <= -THRESHOLD) {
         const percentageDropped = Math.abs(changePercent);
         const message = `${coin} has dropped ${percentageDropped}%. Purchase advisable.`;
 
@@ -42,16 +54,13 @@ function shouldPurchase(coin, marketCoin, openingPrice) {
 
 function shouldSell(coin, marketCoin, openingPrice) {
     if (!coin || !marketCoin || !openingPrice) {
-        return {
-            advice: false,
-            message: 'missing parameters',
-        };
+        return PARAMS_MISSING;
     }
 
-    const changeInCoinUntilNow = marketCoin - openingPrice;
-    const changePercent = stdNum(changeInCoinUntilNow / marketCoin * 100);
-
-    const percentageDropWatch = 5;
+    const { changeInCoinUntilNow, changePercent } = getChangeInfo(
+        marketCoin,
+        openingPrice
+    );
 
     // price has decreased X percent
     if (changePercent < 0) {
@@ -61,10 +70,10 @@ function shouldSell(coin, marketCoin, openingPrice) {
         };
     }
 
-    // price has decreased 5 percent or more
-    if (changePercent >= percentageDropWatch) {
+    // price has increased 5 percent or more
+    if (changePercent >= THRESHOLD) {
         const percentageDropped = Math.abs(changePercent);
-        const message = `${coin} has dropped ${percentageDropped}%. Sale advisable.`;
+        const message = `${coin} has increased ${percentageDropped}%. Sale advisable.`;
 
         return {
             advice: true,
@@ -75,7 +84,7 @@ function shouldSell(coin, marketCoin, openingPrice) {
     if (changePercent >= 0) {
         return {
             advice: false,
-            message: `${coin} market dropped ${changePercent}%, not yet significant.`,
+            message: `${coin} market increased ${changePercent}%, not yet significant.`,
         };
     }
 }
