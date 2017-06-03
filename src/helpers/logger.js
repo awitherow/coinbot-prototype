@@ -4,7 +4,7 @@ const log = console.log;
 const chalk = require('chalk');
 
 type Log = {
-    form?: 'error' | 'log' | 'notice',
+    form?: 'error' | 'log' | 'notice' | 'notice-positive' | 'notice-negative',
     message: any,
 };
 
@@ -16,6 +16,12 @@ module.exports = ({ form, message }: Log) => {
         case 'notice':
             logNotice({ message });
             break;
+        case 'notice-positive':
+            logPositiveNotice({ message });
+            break;
+        case 'notice-negative':
+            logNegativeNoticie({ message });
+            break;
         default:
             logNormal({ message });
             break;
@@ -24,6 +30,14 @@ module.exports = ({ form, message }: Log) => {
 
 function logNotice({ message }) {
     log(chalk.bgWhite.green(message));
+}
+
+function logPositiveNotice({ message }) {
+    log(chalk.bgWhite.cyan(message));
+}
+
+function logNegativeNoticie({ message }) {
+    log(chalk.bgWhite.magenta(message));
 }
 
 function logError({ message }) {
