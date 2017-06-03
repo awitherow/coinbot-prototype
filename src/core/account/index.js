@@ -83,10 +83,10 @@ function prepareLastOrder(
 ): CoinOrder {
     const lastMatchesOfType = matches.filter(match => {
         return match.details.product_id === coinCurrency;
-    })[0];
-    const lastMatchDetails = matches[0].details;
+    });
+    const lastMatchDetails = lastMatchesOfType[0].details;
     const orderType = lastMatchDetails.product_id;
-    matches = matches.filter(
+    const orderMatches = matches.filter(
         ({ details }) =>
             details.product_id === orderType &&
             details.order_id === lastMatchDetails.order_id
@@ -94,10 +94,11 @@ function prepareLastOrder(
 
     return {
         orderType,
-        matches,
-        amount: matches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
+        matches: orderMatches,
+        amount: orderMatches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
     };
 }
+
 // getLastCoinOrder gets last order of the account used.
 async function getLastCoinOrder(
     accountID: string,
