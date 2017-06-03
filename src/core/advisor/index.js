@@ -1,6 +1,6 @@
 const { stdNum } = require('../../helpers/math');
 
-function advisePurchase(coin, marketCoin, openingPrice) {
+function shouldPurchase(coin, marketCoin, openingPrice) {
     if (!coin || !marketCoin || !openingPrice) {
         return {
             advice: false,
@@ -41,5 +41,5 @@ function advisePurchase(coin, marketCoin, openingPrice) {
 }
 
 module.exports = {
-    advisePurchase,
+    shouldPurchase,
 };
