@@ -10,5 +10,5 @@ if (!KEY || !SECRET || !PASS || !ENDPOINT) {
 
 module.exports = {
     authClient: new gdax.AuthenticatedClient(KEY, SECRET, PASS, ENDPOINT),
-    pubClient: (coinCurreny: string) => new gdax.PublicClient(coinCurreny),
+    pubClient: (coinCurrency: string) => new gdax.PublicClient(coinCurrency),
 };

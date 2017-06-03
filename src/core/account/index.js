@@ -11,7 +11,7 @@ type Account = {
 // getAccount is passed a type of account, by string.
 // it then resolves the first account of the user
 // https://docs.gdax.com/#list-accounts
-function getAccount(type: string): Promise<Account | Error> {
+function getAccount(currency: string): Promise<Account | Error> {
     return new Promise((resolve, reject) =>
         authClient.getAccounts((err, res, data) => {
             if (err) {
@@ -20,7 +20,7 @@ function getAccount(type: string): Promise<Account | Error> {
             if (data.message) {
                 return reject(new Error(data.message));
             }
-            const acct = data.filter(acct => acct.currency === type)[0];
+            const acct = data.filter(acct => acct.currency === currency)[0];
             return resolve({
                 id: acct.id,
                 balance: parseFloat(acct.balance),
@@ -29,7 +29,7 @@ function getAccount(type: string): Promise<Account | Error> {
     );
 }
 
-type Match = {
+type Transaction = {
     'id': string,
     'created_at': string,
     'amount': string,
@@ -42,11 +42,11 @@ type Match = {
     },
 };
 
-// getAccountHistory returns the latest 10 account events.
+// getRecentAccountHistory returns the latest 25 account transactions, without transfers.
 // https://docs.gdax.com/#get-account-history
-function getAccountHistory(id: string): Promise<Array<Match> | Error> {
+function getRecentAccountHistory(currencyId: string): Promise<Array<Transaction> | Error> {
     return new Promise((resolve, reject) =>
-        authClient.getAccountHistory(id, (err, res, data: Array<Match>) => {
+        authClient.getAccountHistory(currencyId, (err, res, data: Array<Transaction>) => {
             if (err) {
                 return reject(new Error(err));
             }
@@ -64,15 +64,16 @@ function getAccountHistory(id: string): Promise<Array<Match> | Error> {
     );
 }
 
+// A CoinOrder is a collection of transactions related to one order.
 type CoinOrder = {
     orderType: string,
     coin: string,
-    matches: Array<Match>,
+    matches: Array<Transaction>,
     amount: number,
 };
 
 // prepareLastOrder takes a sorted(date) array of matches and returns a CoinOrder.
-function prepareLastOrder(matches: Array<Match>): CoinOrder {
+function prepareLastOrder(matches: Array<Transaction>): CoinOrder {
     const lastMatchDetails = matches[0].details;
     const orderType = lastMatchDetails.product_id;
     matches = matches.filter(
@@ -89,11 +90,11 @@ function prepareLastOrder(matches: Array<Match>): CoinOrder {
     };
 }
 
-// getCoinOrder gets last order of the account used.
+// getLastCoinOrder gets last order of the account used.
 // gets BTC only at the moment, ensures if an order is split it will find
 // all parts of that order and get the sum of all
-async function getCoinOrder(id: string): Promise<CoinOrder | Error> {
-    const allMatches = await getAccountHistory(id);
+async function getLastCoinOrder(currencyId: string): Promise<CoinOrder | Error> {
+    const allMatches = await getRecentAccountHistory(currencyId);
     if (allMatches instanceof Error) {
         return allMatches;
     }
@@ -103,6 +104,6 @@ async function getCoinOrder(id: string): Promise<CoinOrder | Error> {
 
 module.exports = {
     getAccount,
-    getCoinOrder,
+    getLastCoinOrder,
     prepareLastOrder,
 };
