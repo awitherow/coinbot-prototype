@@ -1,10 +1,12 @@
 const { twilioActivated, notifyUserViaText } = require('../../notifier');
-const logIt = require('../../helpers/logger.js');
 
 function advisePurchase(coin, marketCoin, openingPrice) {
-    logIt({
-        message: `${coin} balance empty, checking last 24 hour stats`,
-    });
+    if (!coin || !marketCoin || !openingPrice) {
+        return {
+            advice: false,
+            message: 'missing parameters',
+        };
+    }
 
     const changeInCoinUntilNow = marketCoin - openingPrice;
     const changePercent = parseFloat(
@@ -26,7 +28,7 @@ function advisePurchase(coin, marketCoin, openingPrice) {
         const percentageDropped = Math.abs(changePercent);
         const message = `${coin} has dropped ${percentageDropped}%. Purchase advisable.`;
 
-        if (twilioActivated) {
+        if (!process.env.TESTING && twilioActivated) {
             notifyUserViaText(message);
         }
 
