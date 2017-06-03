@@ -1,4 +1,4 @@
-const { twilioActivated, notifyUserViaText } = require('../../notifier');
+const { stdNum } = require('../../helpers/math');
 
 function advisePurchase(coin, marketCoin, openingPrice) {
     if (!coin || !marketCoin || !openingPrice) {
@@ -9,9 +9,7 @@ function advisePurchase(coin, marketCoin, openingPrice) {
     }
 
     const changeInCoinUntilNow = marketCoin - openingPrice;
-    const changePercent = parseFloat(
-        Number(changeInCoinUntilNow / marketCoin * 100).toFixed(3)
-    );
+    const changePercent = stdNum(changeInCoinUntilNow / marketCoin * 100);
 
     const percentageDropWatch = -5;
 
@@ -27,10 +25,6 @@ function advisePurchase(coin, marketCoin, openingPrice) {
     if (changePercent <= percentageDropWatch) {
         const percentageDropped = Math.abs(changePercent);
         const message = `${coin} has dropped ${percentageDropped}%. Purchase advisable.`;
-
-        if (!process.env.TESTING && twilioActivated) {
-            notifyUserViaText(message);
-        }
 
         return {
             advice: true,

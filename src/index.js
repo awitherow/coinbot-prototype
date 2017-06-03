@@ -4,6 +4,7 @@
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
 const { stdNum } = require('./helpers/math.js');
+const { twilioActivated, notifyUserViaText } = require('./notifier');
 const {
     FIVE_MINS_MS,
     FIFTEEN_MINS_MS,
@@ -134,7 +135,11 @@ async function execute(
     // 4) no coins, money to spend (purchase)
     if (parsedCoinBalance === 0 && parsedCurrencyBalance > 0) {
         const purchaseAdviseable = advisePurchase(coin, marketCoin, stats.open);
-        console.log(purchaseAdviseable);
+        const { advice, message } = purchaseAdviseable;
+
+        if (twilioActivated && advice && message) {
+            notifyUserViaText(message);
+        }
     }
 
     if (parsedCoinBalance > 0) {
