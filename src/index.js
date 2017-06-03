@@ -3,6 +3,7 @@
 // helpers
 const moment = require('moment');
 const logIt = require('./helpers/logger.js');
+const { stdNum } = require('./helpers/math.js');
 const {
     FIVE_MINS_MS,
     FIFTEEN_MINS_MS,
@@ -82,7 +83,7 @@ async function run(currency: string) {
     }
 
     // coin -> currency
-    if (parseFloat(Number(coinBalance.balance).toFixed(3)) > 0) {
+    if (stdNum(coinBalance.balance) > 0) {
         logIt({
             title: `${coin} balance`,
             info: parseFloat(coinBalance.balance),
