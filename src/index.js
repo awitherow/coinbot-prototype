@@ -10,12 +10,10 @@ const {
     THIRTY_MINS_MS,
     ONE_HOUR_MS,
 } = require('./helpers/constants.js');
-const { twilioActivated, notifyUserViaText } = require('./notifier/');
-// account related functions
-const { getAccount, getLastCoinOrder } = require('./core/account');
 
-// product related functions
+const { getAccount, getLastCoinOrder } = require('./core/account');
 const { getProductSnapshot, get24HourStats } = require('./core/product');
+const { advisePurchase } = require('./core/advisor');
 
 type Millisecond =
     | FIVE_MINS_MS
@@ -113,6 +111,11 @@ async function execute(
         return reject('Could not get market coin information');
     }
 
+    const stats = await get24HourStats(coinCurrency);
+    if (stats instanceof Error) {
+        return reject('Could not get 24 hour stats');
+    }
+
     // parse coin and currency balance to be usable numbers.
     const parsedCoinBalance = parseFloat(
         Number(coinBalance.balance).toFixed(3)
@@ -122,50 +125,19 @@ async function execute(
     );
 
     // decision tree
-    //  1) no coins, money to spend (purchase)
-    //  2) coins, no money to spend (sell)
-    //  3) coins, money to spend (sell) (is there a difference really between 2 and 3?)
+    //  1) no coins, no money (reject immediately)
+    //  2) coins, money to spend ()
+    //  3) coins, no money to spend (sell)
+    //  4) no coins, money to spend (purchase)
     // --------------------------
 
-    // 1) no coins, money to spend
+    // 4) no coins, money to spend (purchase)
     if (parsedCoinBalance === 0 && parsedCurrencyBalance > 0) {
-        logIt({
-            message: `${coin} balance empty, checking last 24 hour stats`,
-        });
-        const stats = await get24HourStats(coinCurrency);
-        if (stats instanceof Error) {
-            return reject('Could not get 24 hour stats');
-        }
+        const purchaseAdviseable = advisePurchase(coin, marketCoin, stats.open);
+        console.log(purchaseAdviseable);
+    }
 
-        const changeInCoinUntilNow = marketCoin - stats.open;
-        const changePercent = parseFloat(
-            Number(changeInCoinUntilNow / marketCoin * 100).toFixed(3)
-        );
-
-        const percentageDropWatch = -5;
-
-        // price has increased X percent
-        if (changePercent > 0) {
-            return reject(`${coin} market too high to buy.`);
-        }
-
-        // price has decreased 5 percent or more
-        if (changePercent <= percentageDropWatch) {
-            const percentageDropped = Math.abs(changePercent);
-            const message = `${coin} has dropped ${percentageDropped}%. Purchase advisable.`;
-
-            if (twilioActivated) {
-                notifyUserViaText(message);
-            } else {
-                return fulfill(message);
-            }
-        }
-
-        if (changePercent <= 0) {
-            return reject(
-                `${coin} market dropped ${changePercent}%, not yet significant.`
-            );
-        }
+    if (parsedCoinBalance > 0) {
     }
 
     return reject(`Could not take action on ${coin}`);
