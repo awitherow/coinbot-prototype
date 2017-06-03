@@ -131,7 +131,7 @@ async function execute(
                 title: 'Keep on the look out for potential further investment, Price drop',
                 info: diffSinceLastTrade,
             });
-            fulfill();
+            return fulfill();
         } else if (diffSinceLastTrade > 10) {
             reactivate(coin, FIFTEEN_MINS_MS);
             logIt({
@@ -139,7 +139,7 @@ async function execute(
                 title: `${coin} price rising, checking more frequently`,
                 info: diffSinceLastTrade,
             });
-            fulfill();
+            return fulfill();
         } else if (diffSinceLastTrade > 20) {
             if (twilioActivated) {
                 notifyUserViaText(
@@ -152,14 +152,14 @@ async function execute(
                 });
             }
             reactivate(coin, FIVE_MINS_MS);
-            fulfill();
+            return fulfill();
         } else {
             logIt({
                 title: 'Price change not significant',
                 info: diffSinceLastTrade,
             });
             reactivate(coin, THIRTY_MINS_MS);
-            fulfill();
+            return fulfill();
         }
     }
 
@@ -182,7 +182,7 @@ async function execute(
                 title: `You bought ${coin} early. Has risen`,
                 info: diffSinceLastTrade,
             });
-            fulfill();
+            return fulfill();
         } else if (diffSinceLastTrade < -10) {
             reactivate(coin, FIFTEEN_MINS_MS);
             logIt({
@@ -190,7 +190,7 @@ async function execute(
                 title: `${coin} is rising, checking more often now.`,
                 info: diffSinceLastTrade,
             });
-            fulfill();
+            return fulfill();
         } else if (diffSinceLastTrade < -20) {
             if (twilioActivated) {
                 notifyUserViaText(
@@ -203,16 +203,16 @@ async function execute(
                 });
             }
             reactivate(coin, FIVE_MINS_MS);
-            fulfill();
+            return fulfill();
         } else {
             logIt({
                 title: 'Price change not significant',
                 info: diffSinceLastTrade,
             });
             reactivate(coin, THIRTY_MINS_MS);
-            fulfill();
+            return fulfill();
         }
     }
 
-    reject('Could not trade coin due to lack of sufficient funding.');
+    return reject('Could not trade coin due to lack of sufficient funding.');
 }
