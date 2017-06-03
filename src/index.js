@@ -5,24 +5,14 @@ const moment = require('moment');
 const logIt = require('./helpers/logger.js');
 const { stdNum } = require('./helpers/math.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier');
-const {
-    FIVE_MINS_MS,
-    FIFTEEN_MINS_MS,
-    THIRTY_MINS_MS,
-    ONE_HOUR_MS,
-} = require('./helpers/constants.js');
+const { FIFTEEN_MINS_MS } = require('./helpers/constants.js');
 
 const { getAccount, getLastCoinOrder } = require('./core/account');
 const { getProductSnapshot, get24HourStats } = require('./core/product');
 const { shouldPurchase } = require('./core/advisor');
 
-type Millisecond =
-    | FIVE_MINS_MS
-    | FIFTEEN_MINS_MS
-    | THIRTY_MINS_MS
-    | ONE_HOUR_MS;
-
-function reactivate(coin: string, time: Millisecond) {
+type Millisecond = number;
+function reactivate(coin: string, time: Millisecond = FIFTEEN_MINS_MS) {
     setInterval(() => check(coin), time);
     logIt({
         message: `checking again in ${moment()
@@ -31,8 +21,15 @@ function reactivate(coin: string, time: Millisecond) {
     });
 }
 
+type Decisions = Array<Decision>;
+type Decision = {
+    id: string,
+    advice: boolean,
+    message: string,
+};
+
 // check returns a fulfillment of having checked.
-function check(coin: string) {
+function check(coin: string): Promise<Decisions | Error> | Error {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
     if (!currency) {
@@ -43,7 +40,7 @@ function check(coin: string) {
         try {
             execute(coin, currency, { fulfill, reject });
         } catch (e) {
-            reactivate(coin, FIFTEEN_MINS_MS);
+            reactivate(coin);
             Error(e);
         }
     });
@@ -51,18 +48,30 @@ function check(coin: string) {
 
 // init loops over defined coins and checks the state of that coin against past trades.
 async function init() {
+    // TODO: check coin currency here and automate which coins to get.
     const coins = ['BTC', 'ETH', 'LTC'];
-
+    let decisions = [];
     for (let i = 0; i <= coins.length - 1; i++) {
         try {
-            await check(coins[i]);
+            decisions = await check(coins[i]);
         } catch (e) {
-            await reactivate(coins[i], FIFTEEN_MINS_MS);
             logIt({
                 form: 'error',
                 message: e,
             });
+            break;
         }
+
+        if (Array.isArray(decisions)) {
+            decisions.map(({ id, advice, message }) =>
+                logIt({
+                    form: 'notice',
+                    message,
+                })
+            );
+        }
+
+        await reactivate(coins[i]);
         console.log('-----------');
     }
 }
@@ -126,24 +135,32 @@ async function execute(
     );
 
     // decision tree
-    //  1) no coins, no money (reject immediately)
-    //  2) coins, money to spend ()
+    //  1) no coins, no money (reject)
+    //  2) both coins, and money to spend ()
     //  3) coins, no money to spend (sell)
     //  4) no coins, money to spend (purchase)
     // --------------------------
 
+    const decisions = [];
+
     // 4) no coins, money to spend (purchase)
     if (parsedCoinBalance === 0 && parsedCurrencyBalance > 0) {
-        const purchaseAdviseable = shouldPurchase(coin, marketCoin, stats.open);
-        const { advice, message } = purchaseAdviseable;
+        const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
+        const { advice, message } = purchaseAdvice;
 
         if (twilioActivated && advice && message) {
             notifyUserViaText(message);
         }
+
+        decisions.push({
+            id: 'purchaseAdvice',
+            advice,
+            message,
+        });
     }
 
     if (parsedCoinBalance > 0) {
     }
 
-    return reject(`Could not take action on ${coin}`);
+    return fulfill(decisions);
 }
