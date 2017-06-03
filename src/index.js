@@ -26,8 +26,9 @@ type Millisecond =
 function reactivate(coin: string, time: Millisecond) {
     setInterval(() => check(coin), time);
     logIt({
-        title: 'checking again',
-        info: moment().add(time, 'milliseconds').fromNow(),
+        message: `checking again in ${moment()
+            .add(time, 'milliseconds')
+            .fromNow()}`,
     });
 }
 
@@ -60,8 +61,7 @@ async function init() {
             await reactivate(coins[i], FIFTEEN_MINS_MS);
             logIt({
                 form: 'error',
-                title: 'failed to run',
-                info: e,
+                message: e,
             });
         }
         console.log('-----------');
@@ -83,8 +83,7 @@ async function execute(
     { fulfill, reject }: PromiseMethods
 ) {
     logIt({
-        title: `running ${coin} at`,
-        info: moment().format('MMMM Do YYYY, h:mm:ss a'),
+        message: `running ${coin} at ${moment().format('MMMM Do YYYY, h:mm:ss a')}`,
     });
 
     // set standard 'COIN-CURRENCY' trade symbol (ex: BTC-USD)
@@ -93,19 +92,25 @@ async function execute(
     // get coin that is being used.
     const myCurrency = await getAccount(currency);
     if (myCurrency instanceof Error) {
-        return reject(Error('Could not get account based on your currency'));
+        return reject('Could not get account based on your currency');
     }
 
     // get the last coin order of coin and currency combo.
     const lastCoinOrder = await getLastCoinOrder(myCurrency.id, coinCurrency);
     if (lastCoinOrder instanceof Error) {
-        return reject(Error('Could not fetch latest coin order'));
+        return reject('Could not fetch latest coin order');
     }
 
     // Get account coin balance.
     const coinBalance = await getAccount(coin);
     if (coinBalance instanceof Error) {
-        return reject(Error('Could not get coin balance'));
+        return reject('Could not get coin balance');
+    }
+
+    // Get current market price of coin
+    const marketCoin = await getProductSnapshot(coinCurrency);
+    if (marketCoin instanceof Error) {
+        return reject('Could not get market coin information');
     }
 
     // parse coin and currency balance to be usable numbers.
@@ -116,26 +121,52 @@ async function execute(
         Number(myCurrency.balance).toFixed(3)
     );
 
-    // decision time!
+    // decision tree
+    //  1) no coins, money to spend (purchase)
+    //  2) coins, no money to spend (sell)
+    //  3) coins, money to spend (sell) (is there a difference really between 2 and 3?)
+    // --------------------------
 
-    // user has no coins, but has money to spend
+    // 1) no coins, money to spend
     if (parsedCoinBalance === 0 && parsedCurrencyBalance > 0) {
         logIt({
-            title: `${coin} balance empty`,
-            info: 'checking last 24 hour stats',
+            message: `${coin} balance empty, checking last 24 hour stats`,
         });
         const stats = await get24HourStats(coinCurrency);
         if (stats instanceof Error) {
-            return reject(Error('Could not get 24 hour stats'));
+            return reject('Could not get 24 hour stats');
+        }
+
+        const changeInCoinUntilNow = marketCoin - stats.open;
+        const changePercent = parseFloat(
+            Number(changeInCoinUntilNow / marketCoin * 100).toFixed(3)
+        );
+
+        const percentageDropWatch = -5;
+
+        // price has increased X percent
+        if (changePercent > 0) {
+            return reject(`${coin} market too high to buy.`);
+        }
+
+        // price has decreased 5 percent or more
+        if (changePercent <= percentageDropWatch) {
+            const percentageDropped = Math.abs(changePercent);
+            const message = `${coin} has dropped ${percentageDropped}%. Purchase advisable.`;
+
+            if (twilioActivated) {
+                notifyUserViaText(message);
+            } else {
+                return fulfill(message);
+            }
+        }
+
+        if (changePercent <= 0) {
+            return reject(
+                `${coin} market dropped ${changePercent}%, not yet significant.`
+            );
         }
     }
 
-    // todo
-    // Get current market price of coin
-    const marketCoin = await getProductSnapshot(coinCurrency);
-    if (marketCoin instanceof Error) {
-        return reject(Error('Could not get market coin information'));
-    }
-
-    return fulfill();
+    return reject(`Could not take action on ${coin}`);
 }
