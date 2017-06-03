@@ -14,7 +14,7 @@ const {
 
 const { getAccount, getLastCoinOrder } = require('./core/account');
 const { getProductSnapshot, get24HourStats } = require('./core/product');
-const { advisePurchase } = require('./core/advisor');
+const { shouldPurchase } = require('./core/advisor');
 
 type Millisecond =
     | FIVE_MINS_MS
@@ -134,7 +134,7 @@ async function execute(
 
     // 4) no coins, money to spend (purchase)
     if (parsedCoinBalance === 0 && parsedCurrencyBalance > 0) {
-        const purchaseAdviseable = advisePurchase(coin, marketCoin, stats.open);
+        const purchaseAdviseable = shouldPurchase(coin, marketCoin, stats.open);
         const { advice, message } = purchaseAdviseable;
 
         if (twilioActivated && advice && message) {
