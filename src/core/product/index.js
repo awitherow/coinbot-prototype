@@ -43,7 +43,7 @@ function get24HourStats(coinCurrency: string): Promise<Stats | Error> {
                     open: parseFloat(Number(data.open).toFixed(3)),
                     high: parseFloat(Number(data.high).toFixed(3)),
                     low: parseFloat(Number(data.low).toFixed(3)),
-                    volume: parseFloat(Number(data.fixed).toFixed(3)),
+                    volume: parseFloat(Number(data.volume).toFixed(3)),
                 });
             }
         });
