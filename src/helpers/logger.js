@@ -5,32 +5,31 @@ const chalk = require('chalk');
 
 type Log = {
     form?: 'error' | 'log' | 'notice',
-    title: string,
-    info: any,
+    message: any,
 };
 
-module.exports = ({ form, title, info }: Log) => {
+module.exports = ({ form, message }: Log) => {
     switch (form) {
         case 'error':
-            logError({ title, info });
+            logError({ message });
             break;
         case 'notice':
-            logNotice({ title, info });
+            logNotice({ message });
             break;
         default:
-            logNormal({ title, info });
+            logNormal({ message });
             break;
     }
 };
 
-function logNotice({ title, info }) {
-    log(chalk.bgWhite.green(`${title}: ${info}`));
+function logNotice({ message }) {
+    log(chalk.bgWhite.green(message));
 }
 
-function logError({ title, info }) {
-    log(chalk.bgYellow.black(`${title}: ${info}`));
+function logError({ message }) {
+    log(chalk.bgYellow.black(message));
 }
 
-function logNormal({ title, info }) {
-    log(chalk.inverse(`${title}: ${info}`));
+function logNormal({ message }) {
+    log(chalk.inverse(message));
 }
