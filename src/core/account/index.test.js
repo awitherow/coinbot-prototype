@@ -32,22 +32,10 @@ describe('prepareLastOrder', () => {
         },
     ];
 
-    const actual = prepareLastOrder(matches);
+    const actual = prepareLastOrder(matches, 'LTC-USD');
 
     test('is a function', () => {
         expect(typeof prepareLastOrder).toBe('function');
-    });
-
-    test('returns a proper orderType', () => {
-        expect(actual.orderType).toBe('LTC-USD');
-    });
-
-    test('returns a string order type', () => {
-        expect(actual.orderType).toBe('LTC-USD');
-    });
-
-    test('returns a string coin', () => {
-        expect(actual.coin).toBe('LTC');
     });
 
     test('returns the latest orders matches', () => {

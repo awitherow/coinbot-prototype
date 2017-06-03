@@ -70,7 +70,6 @@ function getRecentAccountHistory(
 
 // A CoinOrder is a collection of transactions related to one order.
 type CoinOrder = {
-    orderType: string,
     matches: Array<Transaction>,
     amount: number,
 };
@@ -93,7 +92,6 @@ function prepareLastOrder(
     );
 
     return {
-        orderType,
         matches: orderMatches,
         amount: orderMatches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
     };
