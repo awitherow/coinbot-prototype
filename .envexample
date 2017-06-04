@@ -1,8 +1,18 @@
+# GDAX API key credentials
 KEY=
 SECRET=
 PASS=
+
+# Endpoint is either https://api.gdax.com or https://public.sandbox.gdax.com
 ENDPOINT=
+
+# Currency can by USD, EUR, GBP, or BTC
 CURRENCY=USD
+
+# Interval of time coinbot will wait to check for updates (in milliseconds)
+TIME_INTERVAL=900000
+
+# Twilio notification credentials
 TWILIO_SID=
 TWILIO_TOKEN=
 YOUR_PHONE=
