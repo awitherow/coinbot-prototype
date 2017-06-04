@@ -6,10 +6,12 @@ const logIt = require('./helpers/logger.js');
 const { stdNum } = require('./helpers/math.js');
 const { twilioActivated, notifyUserViaText } = require('./notifier');
 const { FIFTEEN_MINS_MS } = require('./helpers/constants.js');
+require('dotenv').config();
 
 const { getAccount } = require('./core/account');
 const { getProductSnapshot, get24HourStats } = require('./core/product');
 const { shouldPurchase, shouldSell } = require('./core/advisor');
+const { TIME_INTERVAL } = process.env;
 
 const DEFAULT_COINS = ['BTC', 'ETH', 'LTC'];
 
@@ -69,7 +71,7 @@ async function run() {
     });
     logIt({
         message: `checking again in ${moment()
-            .add(FIFTEEN_MINS_MS, 'milliseconds')
+            .add(TIME_INTERVAL, 'milliseconds')
             .fromNow()}`,
     });
     console.log('>>>>>>>>>>>>');
@@ -78,7 +80,7 @@ async function run() {
 run();
 setInterval(function() {
     run();
-}, FIFTEEN_MINS_MS);
+}, TIME_INTERVAL);
 
 type PromiseMethods = {
     fulfill: Function,
