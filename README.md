@@ -7,8 +7,7 @@ coin trading assistant bot
 
 ### requirements
 
-- [node](https://nodejs.org/en/) - v7.10.0 min
-- [yarn](https://code.facebook.com/posts/1840075619545360)
+- [node](https://nodejs.org/en/) - v8.0.0 min
 
 #### optional
 
@@ -20,8 +19,8 @@ coin trading assistant bot
 git clone https://github.com/awitherow/coinbot
 cd coinbot
 cp -i .envexample .env
-yarn
-yarn dev
+npm install
+npm run dev
 ```
 
 #### .env
@@ -71,21 +70,10 @@ TWILIO_PHONE=
 
 ## scripts
 
-`yarn dev`
+`npm run dev`
 
 This will use nodemon to watch for changes and restart the server with each file save. Be mindful, as it watches EVERY FILE FOR CHANGE. 
 
-## todo
-
-- [x] sell recommendations
-- [x] telegram hookup
-- [] ensure proper data is there before performing functions (gdax-node fail)
-- [] prettier chalkification
-- [] shell configuration script to set risk/frequency of trading wishes
-- [] json storage
-- [] mutli coin integration
-- [] comparing potential profits on multicoin
-
-## technology 
+## dependencies 
 
 - https://github.com/coinbase/gdax-node
