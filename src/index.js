@@ -13,15 +13,15 @@ const { shouldPurchase, shouldSell } = require('./core/advisor');
 
 const DEFAULT_COINS = ['BTC', 'ETH', 'LTC'];
 
-type Decisions = Array<Decision>;
-type Decision = {
+type Payloads = Array<Payload>;
+type Payload = {
     id: string,
-    advice: boolean,
     message: string,
+    nextCheck?: number,
 };
 
 // check returns a fulfillment of having checked.
-function check(coin: string): Promise<Decisions | Error> | Error {
+function check(coin: string): Promise<Payloads | Error> | Error {
     require('dotenv').config();
     const currency = process.env.CURRENCY;
     if (!currency) {
@@ -38,12 +38,13 @@ function check(coin: string): Promise<Decisions | Error> | Error {
 }
 
 // run loops over defined coins and checks the state of that coin against past trades.
-async function run() {
+(async function run() {
     // TODO: check coin currency here and automate which coins to get.
-    let decisions = [];
+    let payload = [];
+    let timeout = FIFTEEN_MINS_MS;
     for (let i = 0; i <= DEFAULT_COINS.length - 1; i++) {
         try {
-            decisions = await check(DEFAULT_COINS[i]);
+            payload = await check(DEFAULT_COINS[i]);
         } catch (e) {
             logIt({
                 form: 'error',
@@ -52,13 +53,16 @@ async function run() {
             break;
         }
 
-        if (Array.isArray(decisions)) {
-            decisions.map(({ id, advice, message }) =>
+        if (Array.isArray(payload)) {
+            payload.map(({ message, nextCheck }) => {
+                if (nextCheck < FIFTEEN_MINS_MS) {
+                    timeout = nextCheck;
+                }
                 logIt({
                     form: 'notice',
                     message,
-                })
-            );
+                });
+            });
         }
         console.log('-----------');
     }
@@ -67,18 +71,18 @@ async function run() {
         form: 'notice',
         message: 'RUN COMPLETE >>>',
     });
+
+    setTimeout(() => {
+        run();
+    }, timeout);
+
     logIt({
         message: `checking again in ${moment()
-            .add(FIFTEEN_MINS_MS, 'milliseconds')
+            .add(timeout, 'milliseconds')
             .fromNow()}`,
     });
     console.log('>>>>>>>>>>>>');
-}
-
-run();
-setInterval(function() {
-    run();
-}, FIFTEEN_MINS_MS);
+})();
 
 type PromiseMethods = {
     fulfill: Function,
@@ -136,7 +140,7 @@ async function execute(
     //  3) money to spend
     // --------------------------
 
-    const decisions = [];
+    const messages = [];
 
     // 1) no coins, no money (reject)
     if (parsedCoinBalance === 0 && parsedCurrencyBalance === 0) {
@@ -146,7 +150,7 @@ async function execute(
     // 2) coins to sell
     if (parsedCoinBalance > 0) {
         const sellAdvice = shouldSell(coin, marketCoin, stats.open);
-        const { advice, message } = sellAdvice;
+        const { advice, message, nextCheck } = sellAdvice;
 
         if (
             twilioActivated &&
@@ -157,17 +161,24 @@ async function execute(
             notifyUserViaText(message);
         }
 
-        decisions.push({
+        let pkg = {
             id: 'sellAdvice',
             advice,
             message,
-        });
+            nextCheck: null,
+        };
+
+        if (nextCheck) {
+            pkg.nextCheck = nextCheck;
+        }
+
+        messages.push(pkg);
     }
 
     // 3) money to spend
     if (parsedCurrencyBalance > 0) {
         const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
-        const { advice, message } = purchaseAdvice;
+        const { advice, message, nextCheck } = purchaseAdvice;
 
         if (
             twilioActivated &&
@@ -178,12 +189,18 @@ async function execute(
             notifyUserViaText(message);
         }
 
-        decisions.push({
+        let pkg = {
             id: 'purchaseAdvice',
             advice,
             message,
-        });
+        };
+
+        if (nextCheck) {
+            pkg.nextCheck = nextCheck;
+        }
+
+        messages.push(pkg);
     }
 
-    return fulfill(decisions);
+    return fulfill(messages);
 }

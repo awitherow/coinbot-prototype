@@ -1,9 +1,20 @@
 const { stdNum } = require('../../helpers/math');
 
+const {
+    FIFTEEN_MINS_MS,
+    TEN_MINS_MS,
+    FIVE_MINS_MS,
+} = require('../../helpers/constants');
+
 const PARAMS_MISSING = {
     advice: false,
     message: 'missing parameters',
 };
+
+function prepareFeedback(payload) {
+    console.log('HELLO!', Object.assign({}, DEFAULT_MESSAGE_PROPS, payload));
+    return Object.assign({}, DEFAULT_MESSAGE_PROPS, payload);
+}
 
 const THRESHOLD = 5;
 
@@ -17,7 +28,7 @@ function getChangeInfo(market, opening) {
 
 function shouldPurchase(coin, marketCoin, openingPrice) {
     if (!coin || !marketCoin || !openingPrice) {
-        return PARAMS_MISSING;
+        return prepareFeedback(PARAMS_MISSING);
     }
 
     const { changeInCoinUntilNow, changePercent } = getChangeInfo(
@@ -64,6 +75,7 @@ function shouldSell(coin, marketCoin, openingPrice) {
 
     // price has decreased X percent
     if (changePercent < 0) {
+        // holding coin & price is decreasing... you should have most likely sold.
         return {
             advice: false,
             message: `${coin} market too low to sell.`,
@@ -72,13 +84,21 @@ function shouldSell(coin, marketCoin, openingPrice) {
 
     // price has increased 5 percent or more
     if (changePercent >= THRESHOLD) {
-        const percentageDropped = Math.abs(changePercent);
-        const message = `${coin} has increased ${percentageDropped}%. Sale advisable.`;
-
-        return {
+        const payload = {
             advice: true,
-            message,
         };
+        const percentageDropped = Math.abs(changePercent);
+        payload.message = `${coin} has increased ${percentageDropped}%. Sale advisable.`;
+
+        if (changePercent >= THRESHOLD * 2) {
+            payload.nextCheck = TEN_MINS_MS;
+        }
+
+        if (changePercent >= THRESHOLD * 3) {
+            payload.nextCheck = FIVE_MINS_MS;
+        }
+
+        return payload;
     }
 
     if (changePercent >= 0) {
