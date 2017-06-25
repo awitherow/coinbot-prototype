@@ -1,5 +1,3 @@
-//@flow
-
 // this file will contain the api methods that the bootbot
 // will execute on receiving a communication from various senders
 // these will be of type event listener, where the user on Facebook has

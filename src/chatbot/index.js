@@ -1,10 +1,9 @@
-//@flow
 const BootBot = require("bootbot");
 const config = require("../config.json");
 const bot = new BootBot({
-  accessToken: config.facebook.accessToken,
-  verifyToken: config.facebook.verifyToken,
-  appSecret: config.facebook.appSecret
+  accessToken: config.facebook.access_token,
+  verifyToken: config.facebook.verify_token,
+  appSecret: config.facebook.app_secret
 });
 
 const {
@@ -25,7 +24,7 @@ const {
 // mock dummy db, need to consider DB solution.
 class Users {
   get() {}
-  set() {}
+  create() {}
 }
 
 // will uncomment later and do in another branch
@@ -80,15 +79,14 @@ bot.on("postback", async (payload, chat) => {
       return;
     case CONSENT_ACCEPT:
       handleConsentAccept(chat);
-      Users.set({
-        user,
+      Users.create({
         id: payload.sender.id
       });
       return;
     case COINBOT_UPGRADE:
       chat.say("Upgrade coming soon...");
       // payment conversation
-      // set user as paying
+      // update user as paying
       return;
     case COINBOT_RELAX:
       chat.say("Relax coming soon...");
