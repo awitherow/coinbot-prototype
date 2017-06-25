@@ -3,12 +3,12 @@
 const moment = require("moment");
 const logIt = require("./helpers/logger.js");
 const { stdNum } = require("./helpers/math.js");
-const { twilioActivated, notifyUserViaText } = require("./notifier");
+const { twilioActivated, notifyUserViaText } = require("./twilio");
 const { FIFTEEN_MINS_MS } = require("./helpers/constants.js");
 
-const { getAccount } = require("./core/account");
-const { getProductSnapshot, get24HourStats } = require("./core/product");
-const { shouldPurchase, shouldSell } = require("./core/advisor");
+const { getAccount } = require("./logic/account");
+const { getProductSnapshot, get24HourStats } = require("./logic/product");
+const { shouldPurchase, shouldSell } = require("./logic/advisor");
 
 const DEFAULT_COINS = ["BTC", "ETH", "LTC"];
 

@@ -1,0 +1,4 @@
+i will only be using your facebook profile to say your name.
+
+your unique and unidentifiable id (based on what your sender id is within facebook) will used to store your personal preferences in the app 
+- whether the bot can chat with you or not
