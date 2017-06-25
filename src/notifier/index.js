@@ -1,28 +1,29 @@
 require("dotenv").config();
-const { TWILIO_SID, TWILIO_TOKEN, YOUR_PHONE, TWILIO_PHONE } = process.env;
+const { TWILIO_SID, TWILIO_TOKEN, TWILIO_PHONE } = process.env;
 const twilio = require("twilio");
 const client = twilio(TWILIO_SID, TWILIO_TOKEN);
 
-const twilioActivated =
-  TWILIO_SID && TWILIO_TOKEN && TWILIO_PHONE && YOUR_PHONE;
+const { users } = require("../../db/users.json");
 
-function notifyUserViaText(notification) {
-  return new Promise((resolve, reject) => {
-    if (!twilioActivated) {
-      return reject("You need to have twilio activated to get this far");
-    }
+const twilioActivated = TWILIO_SID && TWILIO_TOKEN && TWILIO_PHONE;
 
+async function notifyUserViaText(notification) {
+  if (!twilioActivated) {
+    return reject("Twilio is not properly configured");
+  }
+
+  const errors = [];
+
+  users.map(user => {
     client.messages.create(
       {
-        to: YOUR_PHONE,
+        to: user.phone,
         from: TWILIO_PHONE,
         body: notification
       },
       (err, data) => {
         if (err) {
-          return reject(new Error(err));
-        } else {
-          return resolve(data);
+          console.log(new Error(err));
         }
       }
     );
