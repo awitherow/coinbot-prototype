@@ -5,7 +5,7 @@ const PARAMS_MISSING = {
   message: "missing parameters"
 };
 
-const THRESHOLD = 5;
+const THRESHOLD = 10;
 
 function getChangeInfo(market, opening) {
   const changeInCoinUntilNow = market - opening;
