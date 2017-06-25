@@ -29,19 +29,19 @@
     "gdax": "^0.4.2",
     "global": "^4.3.2",
     "moment": "^2.18.1",
-    "twilio": "^3.0.0"
+    "twilio": "^3.4.0"
   },
   "devDependencies": {
-    "babel-jest": "^20.0.1",
+    "babel-jest": "^20.0.3",
     "babel-preset-flow": "^6.23.0",
-    "flow-bin": "^0.46.0",
+    "flow-bin": "^0.48.0",
     "flow-remove-types": "^1.2.1",
-    "husky": "^0.13.4",
-    "jest": "^20.0.1",
-    "lint-staged": "^3.6.0",
+    "husky": "^0.14.1",
+    "jest": "^20.0.4",
+    "lint-staged": "^4.0.0",
     "nodemon": "^1.11.0",
-    "prettier": "^1.4.2",
-    "yarn": "^0.24.4"
+    "prettier": "^1.4.4",
+    "yarn": "^0.24.5"
   },
   "repository": {
     "type": "git",

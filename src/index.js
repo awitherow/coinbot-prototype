@@ -1,6 +1,5 @@
 // @flow
 
-// helpers
 const moment = require("moment");
 const logIt = require("./helpers/logger.js");
 const { stdNum } = require("./helpers/math.js");
