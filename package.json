@@ -5,8 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "go": "node index.js",
-    "dev": "HOME=true TESTING=true nodemon index.js",
     "home": "HOME=true node index.js",
+    "dev": "HOME=true TESTING=true nodemon index.js",
     "test": "npm run flow && npm run jest",
     "jest": "jest",
     "jw": "TESTING=true node_modules/.bin/jest --watch",

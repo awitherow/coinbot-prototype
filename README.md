@@ -53,7 +53,12 @@ SECRET=aeprhajerh09ua34zahe
 PASS=ah049ja4ha0fh09a34jh
 ENDPOINT=https://api.gdax.com
 CURRENCY=USD
+HOME=true
 ```
+
+The `HOME` variable is important if you wish you run it at your own home, or on your personal computer. Throughout the application there are areas where a production facing environment is under development, and these features will only work through interaction with "databases" in the `db` folder.
+
+If you would like to become a fulltime maintainer/admin of coinbot, please chat with me (Austin) and we can discuss the move, and set up proper authorization to accessing this environment.
 
 #### optional
 
@@ -73,6 +78,10 @@ TWILIO_PHONE=
 `npm run dev`
 
 This will use nodemon to watch for changes and restart the server with each file save. Be mindful, as it watches EVERY FILE FOR CHANGE. 
+
+`npm run home` 
+
+This will run the production environment on your local machine, using your environment variables versus the users.json database.
 
 ## dependencies 
 
