@@ -1,0 +1,199 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Coinbot</title>
+    <meta name="description" content="Coinbot">
+    <meta name="author" content="Austin Witherow">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script async src="https://use.fontawesome.com/e6c07b2be4.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+
+        body,
+        html {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Open Sans', Arial, Helvetica, sans-serif;
+            color: #6a737b;
+            text-shadow: 1px 1px rgba(255, 255, 255, 0.75);
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #4d4f53;
+        }
+
+        .intro {
+            height: 52vh;
+            background: url('./assets/intro.jpg') no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+        .intro .content,
+        .start .content {
+            background: rgba(255, 255, 255, 0.75);
+        }
+
+        .content {
+            height: 100%;
+            padding: 16px;
+            padding-bottom: 24px;
+        }
+
+        .three,
+        footer {
+            background: #6a737b;
+            color: white;
+            text-shadow: none;
+        }
+
+        .three h3 {
+            color: white;
+        }
+
+        .three a {
+            color: #34bf49;
+        }
+
+        .content h1,
+        .content h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .item {
+            margin-bottom: 8px;
+        }
+
+        .start {
+            background: url('./assets/code.jpg') no-repeat center center fixed;
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            height: 250px;
+        }
+
+        .inner {
+            max-width: 768px;
+            margin: 0 auto;
+        }
+
+        .start .inner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-around;
+        }
+
+        .content .button {
+            border: 1px solid #49a942;
+            padding: 8px 16px;
+            text-transform: uppercase;
+            color: white;
+            text-shadow: none;
+            background: #34bf49;
+            text-decoration: none;
+        }
+
+        footer {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        footer ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        footer ul li a {
+            color: white;
+            font-size: 32px;
+        }
+
+        @media(min-width: 768px) {
+            .intro {
+                max-height: 300px;
+            }
+            .intro .inner {
+                padding-top: 2vh;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="intro">
+        <div class="content">
+            <div class="inner">
+                <h1>Coinbot</h1>
+                <h2>Your cryptocurrency trading assistant.</h2>
+                <p>The goal of Coinbot is one of simplicity. While hackers and bankers duke it out in attempts to do high speed
+                    microtrading, a sane approach is necessary.</p>
+                <a class="button" href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">Sign up</a>
+            </div>
+        </div>
+    </div>
+    <div class="three">
+        <div class="content">
+            <div class="inner">
+                <div class="item">
+                    <h3>Effective Risk Ratios</h3>
+                    <p>The biggest mistake one can make in the market is buying too soon, or selling too early. Either way,
+                        you have to sit out of the game until you get back in, usually with a cost. Coinbot lets you know
+                        when the best opportunity to buy or sell cryptocurrency is, so you don't have to stress out keeping
+                        up to date.</p>
+                </div>
+                <div class="item">
+                    <h3>Secure Trading Platform</h3>
+                    <p>Coinbot uses the <a href="www.gdax.com">GDAX Exchange</a> on its backend, run by <a href="">Coinbase</a>.
+                        It is one of the most well trusted and secure platform to conduct cryptocurrency trading. It offers
+                        premium coins with healthy track records. It allows users from both the United States and Europe
+                        to effectively trade Cryptocurrency.
+                    </p>
+                </div>
+                <div class="item">
+                    <h3>Open Source</h3>
+                    <p>An Open Source codebase is the best. It allows for optimal transparency to users, provides easy in modification
+                        and community driven feature development. The Coinbot core will always remain open for the public
+                        to have input on. It is also an excellent repository to learn essential Nodejs programming skills,
+                        helping you grow as a developer.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="start">
+        <div class="content">
+            <div class="inner">
+                <h3>How do I get started?
+                    <h3>
+                        <ol>
+                            <li><a href="">Sign up for a Coinbase Account</a></li>
+                            <li><a href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">Sign up for Coinbot</a></li>
+                            <li>...</li>
+                            <li>Profit!</li>
+                        </ol>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <ul>
+            <li><a href="https://github.com/awitherow/coinbot"><i class="fa fa-github" aria-hidden="true"></i></a></li>
+        </ul>
+    </footer>
+</body>
+
+</html>
