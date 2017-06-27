@@ -21,7 +21,7 @@
         body {
             font-family: 'Open Sans', Arial, Helvetica, sans-serif;
             color: #6a737b;
-            text-shadow: 1px 1px rgba(255, 255, 255, 0.75);
+            text-shadow: 1px 1px rgba(255, 255, 255, 0.9);
         }
 
         h1,
@@ -31,7 +31,7 @@
         }
 
         .intro {
-            height: 52vh;
+            min-height: 52vh;
             background: url('./assets/intro.jpg') no-repeat center center fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
@@ -39,9 +39,17 @@
             background-size: cover;
         }
 
+        .padding-bottom {
+            padding-bottom: 12px;
+        }
+
+        .intro .content h2 {
+            text-align: left;
+        }
+
         .intro .content,
-        .start .content {
-            background: rgba(255, 255, 255, 0.75);
+        .how .content {
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .content {
@@ -50,18 +58,19 @@
             padding-bottom: 24px;
         }
 
-        .three,
+        .about,
         footer {
             background: #6a737b;
             color: white;
             text-shadow: none;
         }
 
-        .three h3 {
+        .about .content h2,
+        .about .content h3 {
             color: white;
         }
 
-        .three a {
+        .about a {
             color: #34bf49;
         }
 
@@ -71,17 +80,21 @@
             margin-bottom: 8px;
         }
 
+        .content h2 {
+            text-align: center;
+            margin: 24px 0;
+        }
+
         .item {
             margin-bottom: 8px;
         }
 
-        .start {
+        .how {
             background: url('./assets/code.jpg') no-repeat center center fixed;
             -webkit-background-size: cover;
             -moz-background-size: cover;
             -o-background-size: cover;
             background-size: cover;
-            height: 250px;
         }
 
         .inner {
@@ -89,14 +102,19 @@
             margin: 0 auto;
         }
 
-        .start .inner {
+        .how .inner {
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-around;
         }
 
-        .content .button {
+        .how .content h2 {
+
+            color: ;
+        }
+
+        .button {
             border: 1px solid #49a942;
             padding: 8px 16px;
             text-transform: uppercase;
@@ -104,6 +122,11 @@
             text-shadow: none;
             background: #34bf49;
             text-decoration: none;
+        }
+
+        .button.grey {
+            border: 1px solid #4d4f53;
+            background: #6a737b;
         }
 
         footer {
@@ -124,9 +147,21 @@
             font-size: 32px;
         }
 
+        .final ul {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+            text-align: center;
+        }
+
+        .final ul li {
+            margin: 8px 0;
+        }
+
         @media(min-width: 768px) {
             .intro {
-                max-height: 300px;
+                max-height: 275px;
+                min-height: auto;
             }
             .intro .inner {
                 padding-top: 2vh;
@@ -141,14 +176,53 @@
             <div class="inner">
                 <h1>Coinbot</h1>
                 <h2>Your cryptocurrency trading assistant.</h2>
-                <p>The goal of Coinbot is one of simplicity. While hackers and bankers duke it out in attempts to do high speed
+                <p class="padding-bottom">The goal of Coinbot is one of simplicity. While hackers and bankers duke it out in attempts to do high speed
                     microtrading, a sane approach is necessary.</p>
-                <a class="button" href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">Sign up</a>
+                <a target="_blank" class="button" href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">Sign up</a>
             </div>
         </div>
     </div>
-    <div class="three">
+    <div class="how">
         <div class="content">
+            <h2>How does it work?
+            </h2>
+            <div class="inner">
+                <div class="item">
+                    <h3>Sign up for Coinbot.</h3>
+                    <p>First, you need to <a href="https://www.coinbase.com/join/529642cd0133706fc9000a5a">sign up for a Coinbase Account</a>.
+                        Once you have your account and funds ready to take action, <a href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">sign up for Coinbot</a>.
+                        To sign up, your email is needed for future communication (no third party nonsense), your name to
+                        be formal, and phone number so that Coinbot can send you free of charge texts.</p>
+                </div>
+                <div class="item">
+                    <h3>Relax</h3>
+                    <p>Let the Coinbot watch the market for you and let you know what is going on. You can relax. The Coinbot
+                        will write you if the market is</p>
+                    <ol>
+                        <li>accelerating upwards a good cashout,</li>
+                        <li>accelerating downwards to a potential buy-in,</li>
+                        <li>looking dodgey and a sell-out might be advisable.</li>
+                    </ol>
+                </div>
+                <div class="item">
+                    <h3>Make Intelligent Decisions</h3>
+                    <p>Coinbot does not (at the time) make these decisions for you, but it is learning. For now, it is up to
+                        you to make intelligent decisions for when to buy, when to stay the course, and when to sell. In
+                        upcoming weeks, an insider knowledge course will be sent via email.</p>
+                </div>
+                <div class="item">
+                    <h3>Profit</h3>
+                    <p>Coinbot is here to help you. Taking on the chore of keeping up with the market full time, and with the
+                        assistance of our insider knowledge course, you will easily be able to make consistent profit, enjoy
+                        the benefits of decentralized currency and build a solid investment base for your future.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="about">
+        <div class="content">
+            <h2>Principals
+            </h2>
             <div class="inner">
                 <div class="item">
                     <h3>Effective Risk Ratios</h3>
@@ -159,7 +233,8 @@
                 </div>
                 <div class="item">
                     <h3>Secure Trading Platform</h3>
-                    <p>Coinbot uses the <a href="www.gdax.com">GDAX Exchange</a> on its backend, run by <a href="">Coinbase</a>.
+                    <p>Coinbot uses the <a target="_blank" href="http://www.gdax.com">GDAX Exchange</a> on its backend, run
+                        by <a target="_blank" href="https://www.coinbase.com/join/529642cd0133706fc9000a5a">Coinbase</a>.
                         It is one of the most well trusted and secure platform to conduct cryptocurrency trading. It offers
                         premium coins with healthy track records. It allows users from both the United States and Europe
                         to effectively trade Cryptocurrency.
@@ -175,17 +250,15 @@
             </div>
         </div>
     </div>
-    <div class="start">
+    <div class="final">
         <div class="content">
             <div class="inner">
-                <h3>How do I get started?
-                    <h3>
-                        <ol>
-                            <li><a href="">Sign up for a Coinbase Account</a></li>
-                            <li><a href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">Sign up for Coinbot</a></li>
-                            <li>...</li>
-                            <li>Profit!</li>
-                        </ol>
+                <h2>Get Started Now!</h2>
+                <ul>
+                    <li><a target="_blank" href="https://www.coinbase.com/join/529642cd0133706fc9000a5a">Sign up  Coinbase Account</a>
+                    </li>
+                    <li><a target="_blank" href="https://goo.gl/forms/yiCsE3rHyxLE6xR12">Sign up for Coinbot</a></li>
+                </ul>
             </div>
         </div>
     </div>
