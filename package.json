@@ -4,7 +4,7 @@
   "description": "coinbase recommendation bot",
   "main": "src/index.js",
   "scripts": {
-    "go": "node index.js",
+    "go": "ENV=production node index.js",
     "home": "HOME=true node index.js",
     "dev": "HOME=true TESTING=true nodemon index.js",
     "test": "npm run flow && npm run jest",
@@ -15,10 +15,7 @@
     "precommit": "lint-staged"
   },
   "lint-staged": {
-    "*.js": [
-      "prettier --write",
-      "git add"
-    ]
+    "*.js": ["prettier --write", "git add"]
   },
   "jest": {
     "testEnvironment": "node"
@@ -48,13 +45,7 @@
     "type": "git",
     "url": "git+https://github.com/awitherow/coinbot.git"
   },
-  "keywords": [
-    "nodejs",
-    "gdax",
-    "bitcoin",
-    "ethereum",
-    "bot"
-  ],
+  "keywords": ["nodejs", "gdax", "bitcoin", "ethereum", "bot"],
   "author": "Austin Witherow",
   "license": "ISC",
   "bugs": {

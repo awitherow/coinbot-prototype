@@ -4,7 +4,8 @@ const {
   TWILIO_TOKEN,
   TWILIO_PHONE,
   YOUR_PHONE,
-  HOME
+  HOME,
+  ENV
 } = process.env;
 const twilio = require("twilio");
 const client = twilio(TWILIO_SID, TWILIO_TOKEN);
@@ -20,7 +21,9 @@ async function notifyUserViaText(notification) {
 
   if (HOME && YOUR_PHONE) {
     sendNotification(notification, YOUR_PHONE);
-  } else {
+  }
+
+  if (ENV === "production") {
     const { users } = require("../../db/users.json");
     users.map(user => {
       sendNotification(notification, user.phone);
