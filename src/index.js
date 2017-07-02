@@ -1,14 +1,15 @@
 // @flow
-
 const moment = require("moment");
-const logIt = require("./helpers/logger.js");
-const { stdNum } = require("./helpers/math.js");
-const { twilioActivated, notifyUserViaText } = require("./notifier");
-const { FIFTEEN_MINS_MS } = require("./helpers/constants.js");
 
 const { getAccount } = require("./core/account");
 const { getProductSnapshot, get24HourStats } = require("./core/product");
 const { shouldPurchase, shouldSell } = require("./core/advisor");
+
+const { twilioActivated, notifyUserViaText } = require("./notifier");
+
+const logIt = require("./helpers/logger.js");
+const { stdNum } = require("./helpers/math.js");
+const { FIFTEEN_MINS_MS } = require("./helpers/constants.js");
 
 const DEFAULT_COINS = ["BTC", "ETH", "LTC"];
 
@@ -122,10 +123,8 @@ async function execute(
   }
 
   // parse coin and currency balance to be usable numbers.
-  const parsedCoinBalance = parseFloat(Number(coinBalance.balance).toFixed(3));
-  const parsedCurrencyBalance = parseFloat(
-    Number(myCurrency.balance).toFixed(3)
-  );
+  const parsedCoinBalance = stdNum(coinBalance.balance);
+  const parsedCurrencyBalance = stdNum(myCurrency.balance);
 
   // decision tree
   //  1) no coins, no money (reject)
