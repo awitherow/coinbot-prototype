@@ -1,4 +1,6 @@
 // @flow
+require("dotenv").config();
+
 const moment = require("moment");
 
 const { getAccount } = require("./core/account");
@@ -22,7 +24,6 @@ type Decision = {
 
 // check returns a fulfillment of having checked.
 function check(coin: string): Promise<Decisions | Error> | Error {
-  require("dotenv").config();
   const currency = process.env.CURRENCY;
   if (!currency) {
     return Error("Please set your CURRENCY env");
@@ -122,12 +123,19 @@ async function execute(
     return reject("Could not get 24 hour stats");
   }
 
-  // parse coin and currency balance to be usable numbers.
-  const parsedCoinBalance = stdNum(coinBalance.balance);
-  const parsedCurrencyBalance = stdNum(myCurrency.balance);
+  let coinBal = 1,
+    currBal = 1;
+
+  if (process.env.HOME) {
+    // parse coin and currency balance to be usable numbers.
+    coinBal = stdNum(coinBalance.balance);
+    currBal = stdNum(myCurrency.balance);
+  }
 
   // decision tree
-  //  1) no coins, no money (reject)
+  // on production, we pretend that you have money and coins, so all options are presented.
+  // TODO: this should be moved up so that api token/key not required
+  //  1) no coins, no money (reject) (HOME ONLY)
   //  2) coins to sell
   //  3) money to spend
   // --------------------------
@@ -135,12 +143,12 @@ async function execute(
   const decisions = [];
 
   // 1) no coins, no money (reject)
-  if (parsedCoinBalance === 0 && parsedCurrencyBalance === 0) {
+  if (coinBal === 0 && currBal === 0) {
     return reject("Not enough trading money");
   }
 
   // 2) coins to sell
-  if (parsedCoinBalance > 0) {
+  if (coinBal > 0) {
     const sellAdvice = shouldSell(coin, marketCoin, stats.open);
     const { advice, message } = sellAdvice;
 
@@ -156,7 +164,7 @@ async function execute(
   }
 
   // 3) money to spend
-  if (parsedCurrencyBalance > 0) {
+  if (currBal > 0) {
     const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
     const { advice, message } = purchaseAdvice;
 
