@@ -7,11 +7,11 @@ const { getAccount } = require("./core/account");
 const { getProductSnapshot, get24HourStats } = require("./core/product");
 const { shouldPurchase, shouldSell } = require("./core/advisor");
 
-const { twilioActivated, notifyUserViaText } = require("./notifier");
+const { twilioActivated, notifyUserViaText } = require("../_twilio");
 
-const logIt = require("./helpers/logger.js");
-const { stdNum } = require("./helpers/math.js");
-const { FIFTEEN_MINS_MS } = require("./helpers/constants.js");
+const logIt = require("../_helpers/logger.js");
+const { stdNum } = require("../_helpers/math.js");
+const { FIFTEEN_MINS_MS } = require("../_helpers/constants.js");
 
 const DEFAULT_COINS = ["BTC", "ETH", "LTC"];
 

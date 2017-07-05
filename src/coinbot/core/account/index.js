@@ -1,7 +1,7 @@
 // @flow
 
 const { authClient } = require("../client");
-const logIt = require("../../helpers/logger");
+const logIt = require("../../../_helpers/logger");
 
 type Account = {
   "id": string,

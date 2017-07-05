@@ -1,2 +1,2 @@
 require("flow-remove-types/register");
-require("./src/");
+require("./src/coinbot");

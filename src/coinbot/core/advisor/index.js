@@ -1,4 +1,5 @@
-const { stdNum } = require("../../helpers/math");
+//@flow
+const { stdNum } = require("../../../_helpers/math");
 
 const PARAMS_MISSING = {
   advice: false,
@@ -7,7 +8,7 @@ const PARAMS_MISSING = {
 
 const THRESHOLD = 15;
 
-function getChangeInfo(market, opening) {
+function getChangeInfo(market: number, opening: number) {
   const changeInCoinUntilNow = market - opening;
   return {
     changeInCoinUntilNow,
@@ -15,7 +16,11 @@ function getChangeInfo(market, opening) {
   };
 }
 
-function shouldPurchase(coin, marketCoin, openingPrice) {
+function shouldPurchase(
+  coin: string,
+  marketCoin: number,
+  openingPrice: number
+) {
   if (!coin || !marketCoin || !openingPrice) {
     return PARAMS_MISSING;
   }
@@ -52,7 +57,7 @@ function shouldPurchase(coin, marketCoin, openingPrice) {
   }
 }
 
-function shouldSell(coin, marketCoin, openingPrice) {
+function shouldSell(coin: string, marketCoin: number, openingPrice: number) {
   if (!coin || !marketCoin || !openingPrice) {
     return PARAMS_MISSING;
   }
