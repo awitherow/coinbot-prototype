@@ -19,7 +19,7 @@ function getProductSnapshot(
         return resolve({
           price: parseFloat(data.price),
           volume: parseFloat(data.volume),
-          time: data.time,
+          time: data.time
         });
       }
     });
@@ -30,7 +30,7 @@ type Stats = {
   open: number,
   high: number,
   low: number,
-  volume: number,
+  volume: number
 };
 
 // gets the last 24 hour status of a product @param coinCurrency
@@ -49,7 +49,7 @@ function get24HourStats(coinCurrency: string): Promise<Stats | Error> {
           open: parseFloat(Number(data.open).toFixed(3)),
           high: parseFloat(Number(data.high).toFixed(3)),
           low: parseFloat(Number(data.low).toFixed(3)),
-          volume: parseFloat(Number(data.volume).toFixed(3)),
+          volume: parseFloat(Number(data.volume).toFixed(3))
         });
       }
     });
@@ -58,5 +58,5 @@ function get24HourStats(coinCurrency: string): Promise<Stats | Error> {
 
 module.exports = {
   getProductSnapshot,
-  get24HourStats,
+  get24HourStats
 };

@@ -11,7 +11,7 @@
     "jest": "jest",
     "jw": "TESTING=true node_modules/.bin/jest --watch",
     "flow": "flow --show-all-errors",
-    "format": "prettier --trailing-comma es5 --write index.js 'src/**/*.js'"
+    "format": "prettier --write index.js 'src/**/*.js'"
   },
   "jest": {
     "testEnvironment": "node"
@@ -37,13 +37,7 @@
     "type": "git",
     "url": "git+https://github.com/awitherow/coinbot.git"
   },
-  "keywords": [
-    "nodejs",
-    "gdax",
-    "bitcoin",
-    "ethereum",
-    "bot"
-  ],
+  "keywords": ["nodejs", "gdax", "bitcoin", "ethereum", "bot"],
   "author": "Austin Witherow",
   "license": "ISC",
   "bugs": {

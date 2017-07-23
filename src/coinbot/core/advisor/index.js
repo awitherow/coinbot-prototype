@@ -55,6 +55,11 @@ function shouldPurchase(
       message: `${coin} market dropped ${changePercent}%, not yet significant.`
     };
   }
+
+  return {
+    advice: false,
+    message: "not sure what happened here."
+  };
 }
 
 function shouldSell(coin: string, marketCoin: number, openingPrice: number) {
@@ -92,6 +97,11 @@ function shouldSell(coin: string, marketCoin: number, openingPrice: number) {
       message: `${coin} market increased ${changePercent}%, not yet significant.`
     };
   }
+
+  return {
+    advice: false,
+    message: "not sure what happened here."
+  };
 }
 
 module.exports = {

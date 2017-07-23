@@ -11,6 +11,7 @@ const { twilioActivated, notifyUserViaText } = require("../../_twilio");
 
 const logIt = require("../../_helpers/logger.js");
 const { stdNum } = require("../../_helpers/math.js");
+const { FIFTEEN_MINS_MS } = require("../../_helpers/constants");
 
 const track = require("./tracker");
 
@@ -18,12 +19,15 @@ type Decisions = Array<Decision>;
 type Decision = {
   id: string,
   advice: boolean,
-  message: string,
+  message: string
 };
 
 // check returns a fulfillment of having executed a call to the GDAX
 // api servers. see execute function to learn which each check does.
-function check(coin: string): Promise<Decisions | Error> | Error {
+function check(
+  coin: string,
+  iteration: number
+): Promise<Decisions | Error> | Error {
   const currency = process.env.CURRENCY;
   if (!currency) {
     return Error("Please set your CURRENCY env");
@@ -31,7 +35,7 @@ function check(coin: string): Promise<Decisions | Error> | Error {
 
   return new Promise((fulfill, reject) => {
     try {
-      execute(coin, currency, { fulfill, reject });
+      execute(coin, currency, iteration, { fulfill, reject });
     } catch (e) {
       Error(e);
     }
@@ -40,7 +44,7 @@ function check(coin: string): Promise<Decisions | Error> | Error {
 
 type PromiseMethods = {
   fulfill: Function,
-  reject: Function,
+  reject: Function
 };
 
 // execute gathers all relevant information on the trades you are making
@@ -49,10 +53,11 @@ type PromiseMethods = {
 async function execute(
   coin: string,
   currency: string,
+  iteration: number,
   { fulfill, reject }: PromiseMethods
 ) {
   logIt({
-    message: `running ${coin} at ${moment().format("MMMM Do YYYY, h:mm:ss a")}`,
+    message: `running ${coin} at ${moment().format("MMMM Do YYYY, h:mm:ss a")}`
   });
 
   // set standard 'COIN-CURRENCY' trade symbol (ex: BTC-USD)
@@ -68,7 +73,7 @@ async function execute(
     coinCurrency,
     price: coinData.price,
     volume: coinData.volume,
-    time: coinData.time,
+    time: coinData.time
   });
 
   const stats = await get24HourStats(coinCurrency);
@@ -117,14 +122,20 @@ async function execute(
     const sellAdvice = shouldSell(coin, coinData.price, stats.open);
     const { advice, message } = sellAdvice;
 
-    if (twilioActivated && advice && message && !Boolean(process.env.TESTING)) {
+    if (
+      twilioActivated &&
+      advice &&
+      message &&
+      iteration / FIFTEEN_MINS_MS &&
+      !Boolean(process.env.TESTING)
+    ) {
       notifyUserViaText(message);
     }
 
     decisions.push({
       id: "sellAdvice",
       advice,
-      message,
+      message
     });
   }
 
@@ -133,14 +144,20 @@ async function execute(
     const purchaseAdvice = shouldPurchase(coin, coinData.price, stats.open);
     const { advice, message } = purchaseAdvice;
 
-    if (twilioActivated && advice && message && !Boolean(process.env.TESTING)) {
+    if (
+      twilioActivated &&
+      advice &&
+      message &&
+      iteration / FIFTEEN_MINS_MS &&
+      !Boolean(process.env.TESTING)
+    ) {
       notifyUserViaText(message);
     }
 
     decisions.push({
       id: "purchaseAdvice",
       advice,
-      message,
+      message
     });
   }
 
@@ -148,5 +165,5 @@ async function execute(
 }
 
 module.exports = {
-  check,
+  check
 };
