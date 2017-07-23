@@ -19,7 +19,7 @@ async function run(iteration: number) {
     } catch (e) {
       logIt({
         form: "error",
-        message: e,
+        message: e
       });
       break;
     }
@@ -28,7 +28,7 @@ async function run(iteration: number) {
       decisions.map(({ id, advice, message }) =>
         logIt({
           form: "notice",
-          message,
+          message
         })
       );
     }
@@ -37,14 +37,14 @@ async function run(iteration: number) {
   console.log(">>>>>>>>>>>>");
   logIt({
     form: "notice",
-    message: "RUN COMPLETE >>>",
+    message: "RUN COMPLETE >>>"
   });
   logIt({
-    message: `checking again in 1 minute`,
+    message: `checking again in 1 minute`
   });
   if (iteration / FIFTEEN_MINS_MS) {
     logIt({
-      message: `messaging user within the next minute.`,
+      message: `messaging user within the next minute.`
     });
   }
   console.log(">>>>>>>>>>>>");

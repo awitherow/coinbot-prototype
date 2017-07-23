@@ -6,30 +6,30 @@ describe("prepareLastOrder", () => {
       amount: "100",
       details: {
         order_id: "order1",
-        product_id: "LTC-USD",
-      },
+        product_id: "LTC-USD"
+      }
     },
     {
       amount: "150",
       details: {
         order_id: "order1",
-        product_id: "LTC-USD",
-      },
+        product_id: "LTC-USD"
+      }
     },
     {
       amount: "150",
       details: {
         order_id: "order2",
-        product_id: "LTC-USD",
-      },
+        product_id: "LTC-USD"
+      }
     },
     {
       amount: "150",
       details: {
         order_id: "order3",
-        product_id: "BTC-USD",
-      },
-    },
+        product_id: "BTC-USD"
+      }
+    }
   ];
 
   const actual = prepareLastOrder(matches, "LTC-USD");
@@ -42,12 +42,12 @@ describe("prepareLastOrder", () => {
     expect(actual.matches).toEqual([
       {
         amount: "100",
-        details: { order_id: "order1", product_id: "LTC-USD" },
+        details: { order_id: "order1", product_id: "LTC-USD" }
       },
       {
         amount: "150",
-        details: { order_id: "order1", product_id: "LTC-USD" },
-      },
+        details: { order_id: "order1", product_id: "LTC-USD" }
+      }
     ]);
   });
 

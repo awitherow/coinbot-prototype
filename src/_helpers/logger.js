@@ -5,7 +5,7 @@ const chalk = require("chalk");
 
 type Log = {
   form?: "error" | "log" | "notice" | "notice-positive" | "notice-negative",
-  message: any,
+  message: any
 };
 
 module.exports = ({ form, message }: Log) => {

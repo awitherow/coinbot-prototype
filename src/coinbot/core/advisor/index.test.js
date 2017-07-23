@@ -6,7 +6,7 @@ describe("shouldPurchase", () => {
   it("should not accept missing parameters", () => {
     expect(shouldPurchase()).toEqual({
       advice: false,
-      message: "missing parameters",
+      message: "missing parameters"
     });
   });
 
@@ -15,7 +15,7 @@ describe("shouldPurchase", () => {
     const openingPrice = 20;
     expect(shouldPurchase(coin, marketCoin, openingPrice)).toEqual({
       advice: false,
-      message: "LTC market too high to buy.",
+      message: "LTC market too high to buy."
     });
   });
 
@@ -24,7 +24,7 @@ describe("shouldPurchase", () => {
     const openingPrice = 20;
     expect(shouldPurchase(coin, marketCoin, openingPrice)).toEqual({
       advice: true,
-      message: `${coin} has dropped 33.33333%. Purchase advisable.`,
+      message: `${coin} has dropped 33.33333%. Purchase advisable.`
     });
   });
 
@@ -33,7 +33,7 @@ describe("shouldPurchase", () => {
     const openingPrice = 20;
     expect(shouldPurchase(coin, marketCoin, openingPrice)).toEqual({
       advice: false,
-      message: "LTC market dropped -0.50251%, not yet significant.",
+      message: "LTC market dropped -0.50251%, not yet significant."
     });
   });
 });

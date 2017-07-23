@@ -10,5 +10,5 @@ function stdNum(x: number): number {
 
 module.exports = {
   roundTo,
-  stdNum,
+  stdNum
 };

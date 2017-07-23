@@ -5,7 +5,7 @@ const {
   TWILIO_PHONE,
   YOUR_PHONE,
   HOME,
-  ENV,
+  ENV
 } = process.env;
 const twilio = require("twilio");
 const client = twilio(TWILIO_SID, TWILIO_TOKEN);
@@ -36,7 +36,7 @@ function sendNotification(notification, phoneNumber) {
     {
       to: phoneNumber,
       from: TWILIO_PHONE,
-      body: notification,
+      body: notification
     },
     (err, data) => {
       if (err) {
@@ -48,5 +48,5 @@ function sendNotification(notification, phoneNumber) {
 
 module.exports = {
   twilioActivated,
-  notifyUserViaText,
+  notifyUserViaText
 };
