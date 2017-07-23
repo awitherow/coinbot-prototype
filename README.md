@@ -1,7 +1,12 @@
 [![wercker status](https://app.wercker.com/status/94a2cb8221a6667b8e8c0ccac3eb01e1/s/master "wercker status")](https://app.wercker.com/project/byKey/94a2cb8221a6667b8e8c0ccac3eb01e1)
 
 # coinbot
-coin trading assistant bot
+a simple long term investment assistant tool using the GDAX exchange API and Twilio for notifications.
+
+## features
+
+* text you when the 24 hour price is down 20%+
+* text you when the 24 hour price is up 20%+ 
 
 ## development
 
