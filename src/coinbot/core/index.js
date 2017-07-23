@@ -68,6 +68,7 @@ async function execute(
     coinCurrency,
     price: coinData.price,
     volume: coinData.volume,
+    time: coinData.time,
   });
 
   const stats = await get24HourStats(coinCurrency);

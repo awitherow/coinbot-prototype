@@ -7,7 +7,7 @@ const { pubClient } = require("../client");
 // https://docs.gdax.com/#get-product-ticker
 function getProductSnapshot(
   coinCurrency: string
-): Promise<{ price: number, volume: number } | Error> {
+): Promise<{ price: number, volume: number, time: string } | Error> {
   return new Promise((resolve, reject) => {
     let client = pubClient(coinCurrency);
     return client.getProductTicker((err, res, data) => {
@@ -19,6 +19,7 @@ function getProductSnapshot(
         return resolve({
           price: parseFloat(data.price),
           volume: parseFloat(data.volume),
+          time: data.time,
         });
       }
     });
