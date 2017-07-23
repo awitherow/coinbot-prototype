@@ -11,9 +11,7 @@ const DEFAULT_COINS = ["BTC", "ETH", "LTC"];
 const { check } = require("./core");
 
 // run loops over defined coins and checks the state of that coin against past trades.
-async function run() {
-  // TODO: check coin currency here and automate which coins to get.
-  let decisions = [];
+async function run(decisions = []) {
   for (let i = 0; i <= DEFAULT_COINS.length - 1; i++) {
     try {
       decisions = await check(DEFAULT_COINS[i]);

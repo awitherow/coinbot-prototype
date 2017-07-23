@@ -19,6 +19,23 @@ type Decision = {
   message: string
 };
 
+// check returns a fulfillment of having executed a call to the GDAX
+// api servers. see execute function to learn which each check does.
+function check(coin: string): Promise<Decisions | Error> | Error {
+  const currency = process.env.CURRENCY;
+  if (!currency) {
+    return Error("Please set your CURRENCY env");
+  }
+
+  return new Promise((fulfill, reject) => {
+    try {
+      execute(coin, currency, { fulfill, reject });
+    } catch (e) {
+      Error(e);
+    }
+  });
+}
+
 type PromiseMethods = {
   fulfill: Function,
   reject: Function
@@ -39,18 +56,6 @@ async function execute(
   // set standard 'COIN-CURRENCY' trade symbol (ex: BTC-USD)
   const coinCurrency = `${coin}-${currency}`;
 
-  // get coin that is being used.
-  const myCurrency = await getAccount(currency);
-  if (myCurrency instanceof Error) {
-    return reject("Could not get account based on your currency");
-  }
-
-  // Get account coin balance.
-  const coinBalance = await getAccount(coin);
-  if (coinBalance instanceof Error) {
-    return reject("Could not get coin balance");
-  }
-
   // Get current market price of coin
   const marketCoin = await getProductSnapshot(coinCurrency);
   if (marketCoin instanceof Error) {
@@ -66,6 +71,18 @@ async function execute(
     currBal = 1;
 
   if (process.env.HOME) {
+    // Get account coin balance.
+    const coinBalance = await getAccount(coin);
+    if (coinBalance instanceof Error) {
+      return reject("Could not get coin balance");
+    }
+
+    // get coin that is being used.
+    const myCurrency = await getAccount(currency);
+    if (myCurrency instanceof Error) {
+      return reject("Could not get account based on your currency");
+    }
+
     // parse coin and currency balance to be usable numbers.
     coinBal = stdNum(coinBalance.balance);
     currBal = stdNum(myCurrency.balance);
@@ -119,23 +136,6 @@ async function execute(
   }
 
   return fulfill(decisions);
-}
-
-// check returns a fulfillment of having executed a call to the GDAX
-// api servers. see execute function to learn which each check does.
-function check(coin: string): Promise<Decisions | Error> | Error {
-  const currency = process.env.CURRENCY;
-  if (!currency) {
-    return Error("Please set your CURRENCY env");
-  }
-
-  return new Promise((fulfill, reject) => {
-    try {
-      execute(coin, currency, { fulfill, reject });
-    } catch (e) {
-      Error(e);
-    }
-  });
 }
 
 module.exports = {
