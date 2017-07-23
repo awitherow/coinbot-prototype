@@ -12,7 +12,7 @@ const { twilioActivated, notifyUserViaText } = require("../../_twilio");
 const logIt = require("../../_helpers/logger.js");
 const { stdNum } = require("../../_helpers/math.js");
 
-const { track } = require("./tracker");
+const track = require("./tracker");
 
 type Decisions = Array<Decision>;
 type Decision = {
@@ -59,14 +59,15 @@ async function execute(
   const coinCurrency = `${coin}-${currency}`;
 
   // Get current market price of coin
-  const marketCoin = await getProductSnapshot(coinCurrency);
-  if (marketCoin instanceof Error) {
+  const coinData = await getProductSnapshot(coinCurrency);
+  if (coinData instanceof Error) {
     return reject("Could not get market coin information");
   }
 
   track("coin-info", {
     coinCurrency,
-    marketCoin,
+    price: coinData.price,
+    volume: coinData.volume,
   });
 
   const stats = await get24HourStats(coinCurrency);
@@ -112,7 +113,7 @@ async function execute(
 
   // 2) coins to sell
   if (coinBal > 0) {
-    const sellAdvice = shouldSell(coin, marketCoin, stats.open);
+    const sellAdvice = shouldSell(coin, coinData.price, stats.open);
     const { advice, message } = sellAdvice;
 
     if (twilioActivated && advice && message && !Boolean(process.env.TESTING)) {
@@ -128,7 +129,7 @@ async function execute(
 
   // 3) money to spend
   if (currBal > 0) {
-    const purchaseAdvice = shouldPurchase(coin, marketCoin, stats.open);
+    const purchaseAdvice = shouldPurchase(coin, coinData.price, stats.open);
     const { advice, message } = purchaseAdvice;
 
     if (twilioActivated && advice && message && !Boolean(process.env.TESTING)) {

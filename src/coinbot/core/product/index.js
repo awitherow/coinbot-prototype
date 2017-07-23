@@ -5,7 +5,9 @@ const { pubClient } = require("../client");
 // this seems to be set to 'BTC-USD' automatically.
 // by instantiating a new pubClient with your own currency, you have control.
 // https://docs.gdax.com/#get-product-ticker
-function getProductSnapshot(coinCurrency: string): Promise<number | Error> {
+function getProductSnapshot(
+  coinCurrency: string
+): Promise<{ price: number, volume: number } | Error> {
   return new Promise((resolve, reject) => {
     let client = pubClient(coinCurrency);
     return client.getProductTicker((err, res, data) => {
@@ -14,7 +16,10 @@ function getProductSnapshot(coinCurrency: string): Promise<number | Error> {
       } else if (data.message) {
         return reject(new Error(data.message));
       } else {
-        return resolve(parseFloat(data.price));
+        return resolve({
+          price: parseFloat(data.price),
+          volume: parseFloat(data.volume),
+        });
       }
     });
   });
@@ -24,7 +29,7 @@ type Stats = {
   open: number,
   high: number,
   low: number,
-  volume: number
+  volume: number,
 };
 
 // gets the last 24 hour status of a product @param coinCurrency
@@ -43,7 +48,7 @@ function get24HourStats(coinCurrency: string): Promise<Stats | Error> {
           open: parseFloat(Number(data.open).toFixed(3)),
           high: parseFloat(Number(data.high).toFixed(3)),
           low: parseFloat(Number(data.low).toFixed(3)),
-          volume: parseFloat(Number(data.volume).toFixed(3))
+          volume: parseFloat(Number(data.volume).toFixed(3)),
         });
       }
     });
@@ -52,5 +57,5 @@ function get24HourStats(coinCurrency: string): Promise<Stats | Error> {
 
 module.exports = {
   getProductSnapshot,
-  get24HourStats
+  get24HourStats,
 };
