@@ -12,11 +12,13 @@ const { twilioActivated, notifyUserViaText } = require("../../_twilio");
 const logIt = require("../../_helpers/logger.js");
 const { stdNum } = require("../../_helpers/math.js");
 
+const { track } = require("./tracker");
+
 type Decisions = Array<Decision>;
 type Decision = {
   id: string,
   advice: boolean,
-  message: string
+  message: string,
 };
 
 // check returns a fulfillment of having executed a call to the GDAX
@@ -38,7 +40,7 @@ function check(coin: string): Promise<Decisions | Error> | Error {
 
 type PromiseMethods = {
   fulfill: Function,
-  reject: Function
+  reject: Function,
 };
 
 // execute gathers all relevant information on the trades you are making
@@ -50,7 +52,7 @@ async function execute(
   { fulfill, reject }: PromiseMethods
 ) {
   logIt({
-    message: `running ${coin} at ${moment().format("MMMM Do YYYY, h:mm:ss a")}`
+    message: `running ${coin} at ${moment().format("MMMM Do YYYY, h:mm:ss a")}`,
   });
 
   // set standard 'COIN-CURRENCY' trade symbol (ex: BTC-USD)
@@ -61,6 +63,11 @@ async function execute(
   if (marketCoin instanceof Error) {
     return reject("Could not get market coin information");
   }
+
+  track("coin-info", {
+    coinCurrency,
+    marketCoin,
+  });
 
   const stats = await get24HourStats(coinCurrency);
   if (stats instanceof Error) {
@@ -115,7 +122,7 @@ async function execute(
     decisions.push({
       id: "sellAdvice",
       advice,
-      message
+      message,
     });
   }
 
@@ -131,7 +138,7 @@ async function execute(
     decisions.push({
       id: "purchaseAdvice",
       advice,
-      message
+      message,
     });
   }
 
@@ -139,5 +146,5 @@ async function execute(
 }
 
 module.exports = {
-  check
+  check,
 };

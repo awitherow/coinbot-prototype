@@ -11,7 +11,7 @@
     "jest": "jest",
     "jw": "TESTING=true node_modules/.bin/jest --watch",
     "flow": "flow --show-all-errors",
-    "format": "prettier --trailing-comma es5 --write index.js 'src/**/*.js'",
+    "format": "prettier --trailing-comma es5 --write index.js 'src/**/*.js'"
   },
   "jest": {
     "testEnvironment": "node"
@@ -19,9 +19,7 @@
   "dependencies": {
     "chalk": "^1.1.3",
     "dotenv": "^4.0.0",
-    "flow": "^0.2.3",
     "gdax": "^0.4.2",
-    "global": "^4.3.2",
     "moment": "^2.18.1",
     "twilio": "^3.4.0"
   },
@@ -32,14 +30,19 @@
     "flow-remove-types": "^1.2.1",
     "jest": "^20.0.4",
     "nodemon": "^1.11.0",
-    "prettier": "^1.4.4",
-    "yarn": "^0.24.5"
+    "prettier": "^1.4.4"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/awitherow/coinbot.git"
   },
-  "keywords": ["nodejs", "gdax", "bitcoin", "ethereum", "bot"],
+  "keywords": [
+    "nodejs",
+    "gdax",
+    "bitcoin",
+    "ethereum",
+    "bot"
+  ],
   "author": "Austin Witherow",
   "license": "ISC",
   "bugs": {
