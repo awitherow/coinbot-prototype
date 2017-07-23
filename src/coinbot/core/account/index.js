@@ -6,7 +6,7 @@ const logIt = require("../../../_helpers/logger");
 type Account = {
   "id": string,
   "balance": number,
-  "currency": string
+  "currency": string,
 };
 
 // getAccount is passed a type of account, by string.
@@ -25,7 +25,7 @@ function getAccount(currency: string): Promise<Account | Error> {
       return resolve({
         id: acct.id,
         balance: parseFloat(acct.balance),
-        currency: acct.currency
+        currency: acct.currency,
       });
     })
   );
@@ -40,8 +40,8 @@ type Transaction = {
   "details": {
     "order_id": string,
     "trade_id": string,
-    "product_id": string
-  }
+    "product_id": string,
+  },
 };
 
 // getRecentAccountHistory returns the latest 25 account transactions, without transfers.
@@ -71,7 +71,7 @@ function getRecentAccountHistory(
 // A CoinOrder is a collection of transactions related to one order.
 type CoinOrder = {
   matches: Array<Transaction>,
-  amount: number
+  amount: number,
 };
 
 // prepareLastOrder takes a sorted(date) array of matches and a specific coinCurrency
@@ -93,7 +93,7 @@ function prepareLastOrder(
 
   return {
     matches: orderMatches,
-    amount: orderMatches.reduce((acc, m) => acc + parseFloat(m.amount), 0)
+    amount: orderMatches.reduce((acc, m) => acc + parseFloat(m.amount), 0),
   };
 }
 
@@ -113,5 +113,5 @@ async function getLastCoinOrder(
 module.exports = {
   getAccount,
   getLastCoinOrder,
-  prepareLastOrder
+  prepareLastOrder,
 };

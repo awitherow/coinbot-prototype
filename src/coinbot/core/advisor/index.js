@@ -3,7 +3,7 @@ const { stdNum } = require("../../../_helpers/math");
 
 const PARAMS_MISSING = {
   advice: false,
-  message: "missing parameters"
+  message: "missing parameters",
 };
 
 const THRESHOLD = 15;
@@ -12,7 +12,7 @@ function getChangeInfo(market: number, opening: number) {
   const changeInCoinUntilNow = market - opening;
   return {
     changeInCoinUntilNow,
-    changePercent: stdNum(changeInCoinUntilNow / market * 100)
+    changePercent: stdNum(changeInCoinUntilNow / market * 100),
   };
 }
 
@@ -34,7 +34,7 @@ function shouldPurchase(
   if (changePercent > 0) {
     return {
       advice: false,
-      message: `${coin} market too high to buy.`
+      message: `${coin} market too high to buy.`,
     };
   }
 
@@ -45,16 +45,21 @@ function shouldPurchase(
 
     return {
       advice: true,
-      message
+      message,
     };
   }
 
   if (changePercent <= 0) {
     return {
       advice: false,
-      message: `${coin} market dropped ${changePercent}%, not yet significant.`
+      message: `${coin} market dropped ${changePercent}%, not yet significant.`,
     };
   }
+
+  return {
+    advice: false,
+    message: "not sure what happened here.",
+  };
 }
 
 function shouldSell(coin: string, marketCoin: number, openingPrice: number) {
@@ -71,7 +76,7 @@ function shouldSell(coin: string, marketCoin: number, openingPrice: number) {
   if (changePercent < 0) {
     return {
       advice: false,
-      message: `${coin} market too low to sell.`
+      message: `${coin} market too low to sell.`,
     };
   }
 
@@ -82,19 +87,24 @@ function shouldSell(coin: string, marketCoin: number, openingPrice: number) {
 
     return {
       advice: true,
-      message
+      message,
     };
   }
 
   if (changePercent >= 0) {
     return {
       advice: false,
-      message: `${coin} market increased ${changePercent}%, not yet significant.`
+      message: `${coin} market increased ${changePercent}%, not yet significant.`,
     };
   }
+
+  return {
+    advice: false,
+    message: "not sure what happened here.",
+  };
 }
 
 module.exports = {
   shouldPurchase,
-  shouldSell
+  shouldSell,
 };
